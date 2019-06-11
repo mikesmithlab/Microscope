@@ -5,10 +5,6 @@ Reference for camera commmands can be found in cl600x2-SU-07-D_manual.pdf in mic
 The dictionary values are (cam command, framegrabber command if appropriate)
 '''
 
-cam_shell = '/opt/Microscope/ConfigFiles/UpdateCam'
-#cam_shell = '/opt/SiliconSoftware/Runtime5.7.0/siso-rt5-5.7.0.76321-linux-amd64/bin/clshell'
-mcf_file = ''
-
 
 cam_dict = {'serial':'#N',
             'firmware':'#f',
@@ -48,6 +44,17 @@ cam_dict = {'serial':'#N',
             'camerastate': '#X',
             'framestampingmode': '#Z',
 }
+
+
+cam_ccf_dict = {'frameformat' : 'frameformat=',
+                'Frame Rate': 'framerate=',
+                'Exposure Time' : 'exptime=',
+                'Gain': 'sensorgain=',
+                'Black Level' : 'BlackLevel=',
+                'DualSlope' : 'dualslope=',
+                'TrippleSlope' : 'tripleslope=',
+                'FPN': 'fpn=',
+                }
 
 fg_dict = {'framerate':'FG_FRAMESPERSEC=',
            'width':'FG_WIDTH=',
