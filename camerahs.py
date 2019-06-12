@@ -1,8 +1,10 @@
-import microscope.cam_settings as cam_settings
+import microscope.cam_settings as
 import subprocess
 from Generic.filedialogs import load_filename, save_filename
+from Generic.file_handling import load_dict_from_file, save_dict_to_file
 from shutil import copyfile
 
+import numpy as np
 
 
 
@@ -13,20 +15,28 @@ class CameraSettings:
         self.cam_cmds_file = cam_config_files + 'cam_cmds'
         self.cam_current_ccf_file = cam_config_files + 'current.ccf'
         self.cam_shell_script = cam_config_files + 'update_cam'
+        self.load_ccf(filename=self.cam_current_ccf_file)
 
-    def load_config(self, filename=None):
+    def load_ccf(self, filename=None):
         if filename is None:
             filename = load_filename(directory=self.cam_config_files, file_filter='*.ccf')
-        self._load_cam_config(filename)
-        if filename != self.cam_current_ccf_file:
-            copyfile(filename, self.cam_current_ccf_file)
+        self.cam_dict = load_dict_from_file(filename)
 
-    def save_config(self):
-        pass
+    def save_ccf(self, filename=None):
+        if filename is None:
+            filename = save_filename(directory=self.cam_config_files, file_filter='*.ccf')
+        save_dict_to_file(filename, self.cam_dict)
 
-    def _load_cam_config(self, filename):
-        self._write_cam_command_file(filename)
+    def load_config(self):
+        self._load_cam_config()
+        self._load_fg_config()
+
+    def _load_cam_config(self):
+        self._write_cam_command_file()
         self._upload_cam_commands()
+
+    def _load_fg_config(self):
+        pass
 
     def _save_cam_config(self, filename=None):
         if filename is None:
@@ -58,9 +68,7 @@ class CameraSettings:
         with open(self.cam_cmds_file, "w") as fout:
             fout.writelines('#N\n')
             fout.writelines('#N\n')
-
             if value is None:
-                print(command + '\n')
                 fout.writelines(command + '\n')
             else:
                 fout.writelines(command + '(' + str(value) + ')\n')
@@ -68,23 +76,33 @@ class CameraSettings:
             output = self._upload_cam_commands()
             return output
 
-    def _write_cam_command_file(self, filename):
-        with open(filename, "r") as fin:
-            with open(self.cam_cmds_file, "w") as fout:
-                fout.writelines('#N\n')
-                for line in fin:
-                    input = line.strip().split('=')
-                    if input[0] in cam_settings.cam_dict.keys():
-                        fout.writelines(cam_settings.cam_dict[input[0]] + '(' + input[1] + ')\n')
-                fout.writelines('##quit')
+
+
+    def _write_cam_command_file(self):
+        with open(self.cam_cmds_file, "w") as fout:
+            fout.writelines('#N\n')
+            for key in self.cam_dict.keys():
+                if self.cam_dict[key][0] is not None:
+                    if self.cam_dict[key][3] is None:
+                        fout.writelines(self.cam_dict[key][0] + '\n')
+                    elif self.cam_dict[key][0] == '#R':
+                        fout.writelines(self.cam_dict[key][0] + '(' +
+                                        str(self.cam_dict[key][2][0]) + ',' +
+                                        str(self.cam_dict[key][2][1]) + ',' +
+                                        str(self.cam_dict[key][2][2]) + ',' +
+                                        str(self.cam_dict[key][2][3]) + ')\n')
+                    else:
+                        fout.writelines(self.cam_dict[key][0] + '(' + str(self.cam_dict[key][2]) + ')\n')
+            fout.writelines('##quit')
 
 
     def _upload_cam_commands(self):
-        print(self.cam_shell_script)
         p = subprocess.Popen([self.cam_shell_script], stdout=subprocess.PIPE)
-        output = p.communicate()[0].split(b'\r\n')
-        print(output)
-        return output
+        output = p.communicate()[0].split(b'\r\n')[1:-1]
+        if b'>\x15' in output:
+            raise CamSettingError(output)
+        else:
+            return output
 
 
 
@@ -96,13 +114,18 @@ class CameraSettings:
         pass
 
 
-
+class CamSettingError(Exception):
+    def __init__(self):
+        print('There was an issue setting 1 or more properties using .ccf file. '
+              'Check the numbers in this file are allowed values. If in doubt reload '
+              'the default config to get up and going again.')
 
 
 if __name__ == '__main__':
 
     cam_set = CameraSettings()
-    #cam_set.reset_default_cam_config()
+
+    #cam_set.load_ccf()
     cam_set.load_config()
     #cam_set.reset_default_cam_config()
-    cam_set._save_cam_config()
+    #cam_set._save_cam_config()
