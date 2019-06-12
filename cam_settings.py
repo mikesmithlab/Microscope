@@ -1,4 +1,6 @@
 from Generic.file_handling import save_dict_to_file
+from Generic.filedialogs import save_filename
+import numpy as np
 ''''
 Reference for camera commmands can be found in cl600x2-SU-07-D_manual.pdf in microscope folder
 
@@ -21,10 +23,29 @@ cam_dict = {'gain':             ['#G', None,0, [0, 1]],
 }
 
 
+def lut_file(lut_array, filename=None):
+    #lut_np array must be 1024 long with numbers between 0 and 255
+    if filename is None:
+        filename = save_filename(directory='/opt/Microscope/ConfigFiles/', file_filter='*.lut')
+
+    with open(filename, mode="w") as fout:
+        fout.writelines('#N\n')
+        fout.writelines('#l\n')
+        for i in range(np.size(lut_array)):
+            fout.writelines(str(int(lut_array[i])) + '\n')
+        fout.writelines('##quit')
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
-    import numpy as np
-    from Generic.filedialogs import save_filename
+    #filename = save_filename(directory='/opt/Microscope/ConfigFiles/', file_filter='*.lut')
+    # save_dict_to_file(filename, cam_dict)
 
-    filename=save_filename(directory='/opt/Microscope/ConfigFiles/', file_filter='*.ccf')
-    save_dict_to_file(filename, cam_dict)
+
+
+    lut_file(np.floor(np.linspace(0, 255, 1024)))
