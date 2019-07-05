@@ -2,11 +2,86 @@ import subprocess
 from Generic.filedialogs import load_filename, save_filename
 from Generic.file_handling import load_dict_from_file, save_dict_to_file
 from shutil import copyfile
+import SiSoPyInterface as SISO
 
+class Camera:
+    def __init__(self, cam_config_dir='/opt/Microscope/ConfigFiles/'):
+        self.cam_config_dir = cam_config_dir
+        self.fg = SISO.Fg_InitConfig(cam_config_dir + 'current.mcf', 0)
+        self.set = CameraSettings(self.fg, cam_config_dir)
+
+    def initialise(self, nrOfPicturesToGrab, nbBuffers=10):
+        self.fg = SISO.Fg_InitConfig(self.cam_config_dir + 'current.mcf', 0)
+        self.nrOfPicturesToGrab = nrOfPicturesToGrab
+        self.display = SISO.CreateDisplay(8, self.set.cam_dict['frameformat'][2][2], self.set.cam_dict['frameformat'][2][3])
+        SISO.SetBufferWidth(self.display, self.set.cam_dict['frameformat'][2][2], self.set.cam_dict['frameformat'][2][3])
+        totalBufferSize = self.set.cam_dict['frameformat'][2][2] * self.set.cam_dict['frameformat'][2][3] * nbBuffers
+        self.memHandle = SISO.Fg_AllocMemEx(self.fg, totalBufferSize, nbBuffers)
+
+    def start(self):
+        err = SISO.Fg_AcquireEx(self.fg, 0, self.nrOfPicturesToGrab, SISO.ACQ_STANDARD, self.memHandle)
+        if (err != 0):
+            print('Fg_AcquireEx() failed:', s.Fg_getLastErrorDescription(fg))
+            SISO.Fg_FreeMemEx(self.fg, self.memHandle)
+            SISO.CloseDisplay(self.display)
+            SISO.Fg_FreeGrabber(self.fg)
+            exit(err)
+
+        cur_pic_nr = 0
+        last_pic_nr = 0
+        img = "will point to last grabbed image"
+        nImg = "will point to Numpy image/matrix"
+
+        win_name_img = "Source Image (SiSo Runtime)"
+        win_name_res = "Result Image (openCV)"
+
+        print("Acquisition started")
+
+        # RUN PROCESSING LOOP for nrOfPicturesToGrab images
+        while cur_pic_nr < self.nrOfPicturesToGrab:
+
+            cur_pic_nr = SISO.Fg_getLastPicNumberBlockingEx(self.fg, last_pic_nr + 1, 0, 5, self.memHandle)
+
+            if (cur_pic_nr < 0):
+                print("Fg_getLastPicNumberBlockingEx(", (last_pic_nr + 1), ") failed: ",
+                      (SISO.Fg_getLastErrorDescription(self.fg)))
+                SISO.Fg_stopAcquire(self.fg, 0)
+                SISO.Fg_FreeMemEx(self.fg, self.memHandle)
+                SISO.CloseDisplay(self.display)
+                SISO.Fg_FreeGrabber(self.fg)
+                exit(cur_pic_nr)
+
+            last_pic_nr = cur_pic_nr
+
+            # get image pointer
+            img = SISO.Fg_getImagePtrEx(self.fg, last_pic_nr, 0, self.memHandle)
+
+            # handle this as Numpy array (using same memory, NO copy)
+            # nImg = s.getArrayFrom(img, width, height)
+
+            # display source image
+            SISO.DrawBuffer(self.display, img, last_pic_nr, win_name_img)
+
+        SISO.CloseDisplay(self.display)
+
+        print("Acquisition stopped")
+
+    def stop(self):
+        pass
+
+
+    def release(self):
+        SISO.Fg_FreeGrabber(self.fg)
+
+    def _view(self, numpics=100):
+        width = self.set.cam_dict['frameformat'][2][3]
+        height = self.set.cam_dict['frameformat'][2][2]
+        self.display = SISO.CreateDisplay(8, width, height)
+        SISO.SetBufferWidth(self.display, width, height)
 
 class CameraSettings:
     '''
-    Class to handle the settings of both Optronis CL600x2camera and microenable IV-AD4 CL framegrabber
+    Class to handl e the settings of both Optronis CL600x2camera and microenable IV-AD4 CL framegrabber
     Settings files (.ccf) can be created using cam_settings.py. This is a dictionary with the following format:
 
     {key: [command code camera, command mcf file, value, valid range}
@@ -24,58 +99,44 @@ class CameraSettings:
 
     '''
 
-    def __init__(self,cam_config_dir='/opt/Microscope/ConfigFiles/'):
+    def __init__(self, fg, cam_config_dir):
+        self.fg = fg
         self.cam_config_dir = cam_config_dir
         self.cam_cmds = cam_config_dir + 'cam_cmds'
         self.cam_current_ccf = cam_config_dir + 'current.ccf'
+        self.fg_current_mcf = cam_config_dir + 'current.mcf'
         self.cam_shell_script = cam_config_dir + 'update_cam'
         self.lut_script = cam_config_dir + 'upload_lut'
-        self.load_ccf(filename=self.cam_current_ccf)
+        self.load_config()
 
-    def load_ccf(self, filename=None):
+    def load_config(self, filename=None):
         if filename is None:
             filename = load_filename(directory=self.cam_config_dir, file_filter='*.ccf')
         self.cam_dict = load_dict_from_file(filename)
+        self._load_cam_config()
+        SISO.Fg_loadConfig(self.fg, filename[:-3]+'mcf')
+        self._check_new_max_vals()
 
-    def save_ccf(self, filename=None):
+    def save_config(self, filename=None):
         if filename is None:
             filename = save_filename(directory=self.cam_config_dir, file_filter='*.ccf')
         save_dict_to_file(filename, self.cam_dict)
-
-    def load_config(self):
-        self._load_cam_config()
-        self._load_fg_config()
+        self.fg_saveConfig(filename[:-3]+'mcf')
 
     def _load_cam_config(self):
         self._write_cam_command_file()
-        self._upload_cam_commands(self.cam_shell_script)
+        self._upload_cam_commands()
 
-    def _load_fg_config(self):
-        pass
-
-    def reset_default_cam_config(self):
-        copyfile(self.cam_config_files + 'default_backup.ccf', self.cam_current_ccf)
+    def reset_default_config(self):
+        copyfile(self.cam_config_dir + 'default_backup.ccf', self.cam_current_ccf)
+        copyfile(self.cam_config_dir + 'default_backup.mcf', self.fg_current_mcf)
         self._load_cam_config(self.cam_current_ccf)
+        SISO.Fg_loadConfig(self.fg, self.cam_config_dir + 'current.mcf')
 
     def load_lut(self, filename=None):
         if filename is None:
             load_filename(directory=self.cam_config_dir, file_filter='*.lut')
         self._upload_cam_commands(self.lut_script)
-
-
-    def _write_single_cam_command(self, command, value=None):
-        with open(self.cam_cmds, "w") as fout:
-            fout.writelines('#N\n')
-            fout.writelines('#N\n')
-            if value is None:
-                fout.writelines(command + '\n')
-            else:
-                fout.writelines(command + '(' + str(value) + ')\n')
-            fout.writelines('##quit')
-            output = self._upload_cam_commands(self.cam_shell_script)
-            return output
-
-
 
     def _write_cam_command_file(self):
         with open(self.cam_cmds, "w") as fout:
@@ -94,23 +155,38 @@ class CameraSettings:
                         fout.writelines(self.cam_dict[key][0] + '(' + str(self.cam_dict[key][2]) + ')\n')
             fout.writelines('##quit')
 
+    def _check_new_max_vals(self):
+        output = self.write_single_cam_command('#A')
+        self.cam_dict['framerate'][3][1] = str(int(output[0][1:-1]))
+        output = self.write_single_cam_command('#a')
+        self.cam_dict['exptime'][3][1] = str(int(output[0][1:-1]))
 
-    def _upload_cam_commands(self, script):
-        p = subprocess.Popen([script], stdout=subprocess.PIPE)
+    def write_single_cam_command(self, command, value=None):
+        with open(self.cam_cmds, "w") as fout:
+            fout.writelines('#N\n')
+            if value is None:
+                fout.writelines(command + '\n')
+            else:
+                fout.writelines(command + '(' + str(value) + ')\n')
+            fout.writelines('##quit')
+        output = self._upload_cam_commands()
+        return output
+
+    def write_single_fg_command(self, parameter, value):
+        '''
+        SDK Docs http://www.siliconsoftware.de/download/live_docu/RT5/en/documents/SDK/SDK.html#_2.3.1
+        2.4.1 lists all parameters and values.
+        '''
+        SISO.Fg_SetParameter(self.fg, parameter, value, 0)
+
+    def _upload_cam_commands(self):
+        p = subprocess.Popen([self.cam_shell_script], stdout=subprocess.PIPE)
         output = p.communicate()[0].split(b'\r\n')[1:-1]
+
         if b'>\x15' in output:
             raise CamSettingError(output)
         else:
             return output
-
-
-
-
-    def _rewrite_mcf(self):
-        pass
-
-    def _write_value_camconfig(self, param, value):
-        pass
 
 
 class CamSettingError(Exception):
@@ -121,11 +197,16 @@ class CamSettingError(Exception):
 
 
 if __name__ == '__main__':
+    import SiSoPyInterface
 
-    cam_set = CameraSettings()
+    cam = Camera()
 
-    #cam_set.load_ccf()
-    #cam_set.load_config()
-    cam_set.load_lut()
+    cam.initialise(100)
+    cam.start()
+    cam.release()
+
+
+    #cam_set._check_new_max_vals()
+    #cam_set.load_lut()
     #cam_set.reset_default_cam_config()
     #cam_set._save_cam_config()
