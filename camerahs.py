@@ -8,6 +8,7 @@ from PyQt5.QtGui import QPixmap, QImage, QPainterPath, QCloseEvent
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QApplication,
                              QSlider, QHBoxLayout, QGraphicsView, QGraphicsScene,
                              QFileDialog, QCheckBox)
+import sys
 
 from Generic.filedialogs import load_filename, save_filename, open_directory
 from Generic.file_handling import load_dict_from_file, save_dict_to_file
