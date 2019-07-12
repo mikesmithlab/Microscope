@@ -1,8 +1,19 @@
 import subprocess
-from Generic.filedialogs import load_filename, save_filename
-from Generic.file_handling import load_dict_from_file, save_dict_to_file
 from shutil import copyfile
 import SiSoPyInterface as SISO
+import numpy as np
+import os
+from PyQt5.QtCore import Qt, pyqtSignal, QRectF, QT_VERSION_STR
+from PyQt5.QtGui import QPixmap, QImage, QPainterPath, QCloseEvent
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QApplication,
+                             QSlider, QHBoxLayout, QGraphicsView, QGraphicsScene,
+                             QFileDialog, QCheckBox)
+
+from Generic.filedialogs import load_filename, save_filename, open_directory
+from Generic.file_handling import load_dict_from_file, save_dict_to_file
+from Generic.video import WriteVideo
+from Generic.images import display, write_img
+from Generic.images import QWidgetMod, QtImageViewer
 
 class Camera:
     def __init__(self, cam_config_dir='/opt/Microscope/ConfigFiles/'):
@@ -10,18 +21,24 @@ class Camera:
         self.fg = SISO.Fg_InitConfig(cam_config_dir + 'current.mcf', 0)
         self.set = CameraSettings(self.fg, cam_config_dir)
 
-    def initialise(self, nrOfPicturesToGrab, nbBuffers=10):
+    def initialise(self, numPicsBuffer=1000):
+        self.numPicsBuffer = numPicsBuffer
         self.fg = SISO.Fg_InitConfig(self.cam_config_dir + 'current.mcf', 0)
-        self.nrOfPicturesToGrab = nrOfPicturesToGrab
-        self.display = SISO.CreateDisplay(8, self.set.cam_dict['frameformat'][2][2], self.set.cam_dict['frameformat'][2][3])
-        SISO.SetBufferWidth(self.display, self.set.cam_dict['frameformat'][2][2], self.set.cam_dict['frameformat'][2][3])
-        totalBufferSize = self.set.cam_dict['frameformat'][2][2] * self.set.cam_dict['frameformat'][2][3] * nbBuffers
-        self.memHandle = SISO.Fg_AllocMemEx(self.fg, totalBufferSize, nbBuffers)
+        totalBufferSize = self.set.cam_dict['frameformat'][2][2] * self.set.cam_dict['frameformat'][2][3] * numPicsBuffer
+        self.memHandle = SISO.Fg_AllocMemEx(self.fg, totalBufferSize, numPicsBuffer)
+        self.display = SISO.CreateDisplay(8, self.set.cam_dict['frameformat'][2][2],
+                                          self.set.cam_dict['frameformat'][2][3])
+        SISO.SetBufferWidth(self.display, self.set.cam_dict['frameformat'][2][2],
+                            self.set.cam_dict['frameformat'][2][3])
 
-    def start(self):
-        err = SISO.Fg_AcquireEx(self.fg, 0, self.nrOfPicturesToGrab, SISO.ACQ_STANDARD, self.memHandle)
+    def grab(self, numpics=None):
+        if numpics is None:
+            numpics = self.numPicsBuffer
+
+        err = SISO.Fg_AcquireEx(self.fg, 0, numpics, SISO.ACQ_STANDARD, self.memHandle)
+
         if (err != 0):
-            print('Fg_AcquireEx() failed:', s.Fg_getLastErrorDescription(fg))
+            print('Fg_AcquireEx() failed:', SISO.Fg_getLastErrorDescription(self.fg))
             SISO.Fg_FreeMemEx(self.fg, self.memHandle)
             SISO.CloseDisplay(self.display)
             SISO.Fg_FreeGrabber(self.fg)
@@ -37,13 +54,16 @@ class Camera:
 
         print("Acquisition started")
 
-        # RUN PROCESSING LOOP for nrOfPicturesToGrab images
-        while cur_pic_nr < self.nrOfPicturesToGrab:
+        # RUN PROCESSING LOOP for numpics images
 
-            cur_pic_nr = SISO.Fg_getLastPicNumberBlockingEx(self.fg, last_pic_nr + 1, 0, 5, self.memHandle)
+        while cur_pic_nr < numpics:
+
+            #cur_pic_nr = SISO.Fg_getLastPicNumberEx(self.fg, 0, self.memHandle)
+            cur_pic_nr = SISO.Fg_getLastPicNumberBlockingEx(self.fg, last_pic_nr+1, 0, 5, self.memHandle)
 
             if (cur_pic_nr < 0):
-                print("Fg_getLastPicNumberBlockingEx(", (last_pic_nr + 1), ") failed: ",
+                print('here')
+                print("Fg_getLastPicNumber", (last_pic_nr + 1), ") failed: ",
                       (SISO.Fg_getLastErrorDescription(self.fg)))
                 SISO.Fg_stopAcquire(self.fg, 0)
                 SISO.Fg_FreeMemEx(self.fg, self.memHandle)
@@ -54,21 +74,45 @@ class Camera:
             last_pic_nr = cur_pic_nr
 
             # get image pointer
-            img = SISO.Fg_getImagePtrEx(self.fg, last_pic_nr, 0, self.memHandle)
-
-            # handle this as Numpy array (using same memory, NO copy)
-            # nImg = s.getArrayFrom(img, width, height)
+            img_ptr = SISO.Fg_getImagePtrEx(self.fg, last_pic_nr, 0, self.memHandle)
 
             # display source image
-            SISO.DrawBuffer(self.display, img, last_pic_nr, win_name_img)
+            SISO.DrawBuffer(self.display, img_ptr, last_pic_nr, win_name_img)
 
+        self.last_pic_nr = last_pic_nr
         SISO.CloseDisplay(self.display)
 
         print("Acquisition stopped")
 
-    def stop(self):
-        pass
+        #self.save()
+        self.stop()
 
+    def stop(self):
+        self.max_img_num = 50#SISO.Fg_getLastPicNumberBlockingEx(self.fg, self.last_pic_nr, 0, 5, self.memHandle)
+        SISO.Fg_stopAcquire(self.fg, 0)
+
+    def edit(self):
+        self.vid_edit = CameraVidEditGui(self)
+
+    def save(self, filename=None, first=0, last=None):
+        if filename is None:
+            filename = save_filename(directory='/home/ppzmis/Videos/')
+        writevid = WriteVideo(filename=filename, frame_size=(self.set.cam_dict['frameformat'][2][2], self.set.cam_dict['frameformat'][2][3]))
+
+        if last is None:
+            last = self.max_img_num
+
+        for i in range(1, last, 1):
+            print(i)
+            img_ptr = SISO.Fg_getImagePtrEx(self.fg, i, 0, self.memHandle)
+            nImg = SISO.getArrayFrom(img_ptr, self.set.cam_dict['frameformat'][2][3],
+                                     self.set.cam_dict['frameformat'][2][2])
+            #write_img(nImg, filename + str(i) + '.png')
+            # print(np.shape(nImg))
+            # display(nImg)
+            writevid.add_frame(nImg)
+
+        writevid.close()
 
     def release(self):
         SISO.Fg_FreeGrabber(self.fg)
@@ -78,6 +122,58 @@ class Camera:
         height = self.set.cam_dict['frameformat'][2][2]
         self.display = SISO.CreateDisplay(8, width, height)
         SISO.SetBufferWidth(self.display, width, height)
+
+class CameraControlGui:
+    def __init__(self):
+        pass
+
+class CameraVidEditGui:
+    def __init__(self, cam):
+        self.cam=cam
+        self.first_frame = 0
+        self.last_frame = self.cam.max_img_num
+        self.edit_first_frame = self.first_frame
+        self.edit_last_frame = self.last_frame
+
+    def init_ui(self):
+        # Create window and layout
+        app = QApplication(sys.argv)
+        self.win = QWidgetMod(self.param_dict)
+        self.vbox = QVBoxLayout(self.win)
+
+        # Create Image viewer
+        self.viewer = QtImageViewer()
+        self.viewer.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.viewer.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.viewer.leftMouseButtonPressed.connect(self.get_coords)
+        self.viewer.canZoom = True
+        self.viewer.canPan = True
+        self._update_im()
+        self.vbox.addWidget(self.viewer)
+
+        # Create live update checkbox
+        cb = QCheckBox('Update')
+        cb.toggle()
+        cb.stateChanged.connect(self._update_cb)
+        self.live_update = True
+        self.vbox.addWidget(cb)
+
+        # Add sliders
+        self.add_sliders()
+
+        # Finalise window
+        self.win.setWindowTitle('ParamGui')
+        self.win.setLayout(self.vbox)
+        self.win.show()
+        sys.exit(app.exec_())
+
+    def save(self):
+        pass
+
+    def close(self):
+        pass
+
+
 
 class CameraSettings:
     '''
@@ -115,7 +211,7 @@ class CameraSettings:
         self.cam_dict = load_dict_from_file(filename)
         self._load_cam_config()
         SISO.Fg_loadConfig(self.fg, filename[:-3]+'mcf')
-        self._check_new_max_vals()
+        #self._check_new_max_vals()
 
     def save_config(self, filename=None):
         if filename is None:
@@ -157,6 +253,7 @@ class CameraSettings:
 
     def _check_new_max_vals(self):
         output = self.write_single_cam_command('#A')
+        print(output)
         self.cam_dict['framerate'][3][1] = str(int(output[0][1:-1]))
         output = self.write_single_cam_command('#a')
         self.cam_dict['exptime'][3][1] = str(int(output[0][1:-1]))
@@ -201,8 +298,9 @@ if __name__ == '__main__':
 
     cam = Camera()
 
-    cam.initialise(100)
-    cam.start()
+    cam.initialise()
+    cam.grab()
+    cam.save()
     cam.release()
 
 
