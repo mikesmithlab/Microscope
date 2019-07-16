@@ -165,39 +165,82 @@ class CameraSettingsGUI:
         self.win = QWidget()
         self.vbox = QVBoxLayout(self.win)
 
+        self.width_box()
+        self.height_box()
+        self.xoffset_box()
+        self.yoffset_box()
+        self.select_roi_button()
+        self.framerate_box()
+        self.exposure_box()
+
         self.gain_value_slider()
+        self.blacklevel_slider()
+        self.duallevel_slider()
+        self.triplelevel_slider()
         self.fpn_checkbox()
         self.lut_button()
         self.lut_file_label()
         self.load_config_button()
         self.save_config_button()
         self.reset_config_button()
-        self.mcf_file_label()
+        self.cam_settings_label()
 
         #widget=QWidget()
+        picture_label_group = QHBoxLayout()
+        picture_group = QHBoxLayout()
+        select_group = QHBoxLayout()
+        fps_group=QHBoxLayout()
 
-        gain_box = QHBoxLayout()
+        picture_label_group.addWidget(self.widthlbl)
+        picture_label_group.addWidget(self.heightlbl)
+        picture_label_group.addWidget(self.xoffsetlbl)
+        picture_label_group.addWidget(self.yoffsetlbl)
+        picture_group.addWidget(self.width_text)
+        picture_group.addWidget(self.height_text)
+        picture_group.addWidget(self.xoffset_text)
+        picture_group.addWidget(self.yoffset_text)
+        select_group.addWidget(self.select_roi)
+        fps_group.addWidget(self.framerate_text)
+        fps_group.addWidget(self.exposure_text)
+
+        gain_group = QHBoxLayout()
+
+        gain_box = QVBoxLayout()
         gain_box.addWidget(self.gain_lbl)
         gain_box.addWidget(self.gain_slider)
+        gain_box.addWidget(self.gain_slider)
+        gain_box.addWidget(self.black_val_lbl)
+        gain_box.addWidget(self.black_val)
+        gain_box.addWidget(self.dual_val_lbl)
+        gain_box.addWidget(self.dual_val)
+        gain_box.addWidget(self.triple_val_lbl)
+        gain_box.addWidget(self.triple_val)
         gain_box.addWidget(self.fpn_cb)
+
+
         lut_box = QHBoxLayout()
         lut_box.addWidget(self.upload_lut)
         lut_box.addWidget(self.lut_label)
 
-        mcf_box = QHBoxLayout()
-        mcf_box.addWidget(self.load_config)
-        mcf_box.addWidget(self.save_config)
-        mcf_box.addWidget(self.reset_config)
+        cam_settings_file_box = QHBoxLayout()
+        cam_settings_file_box.addWidget(self.load_config)
+        cam_settings_file_box.addWidget(self.save_config)
+        cam_settings_file_box.addWidget(self.reset_config)
 
-        mcf_file_box = QHBoxLayout()
-        mcf_file_box.addWidget(self.mcf_label)
+        cam_settings_file_box = QHBoxLayout()
+
+        cam_settings_file_box.addWidget(self.cam_settings)
 
 
         #self.vbox.stretch(1)
-        self.vbox.addLayout(gain_box)
+        gain_group.addLayout(gain_box)
+        self.vbox.addLayout(picture_label_group)
+        self.vbox.addLayout(picture_group)
+        self.vbox.addLayout(select_group)
+        self.vbox.addLayout(fps_group)
+        self.vbox.addLayout(gain_group)
         self.vbox.addLayout(lut_box)
-        self.vbox.addLayout(mcf_box)
-        self.vbox.addLayout(mcf_file_box)
+        self.vbox.addLayout(cam_settings_file_box)
 
 
         #self.win.setLayout(self.vbox)
@@ -206,10 +249,75 @@ class CameraSettingsGUI:
 
         # Finalise window
         self.win.setWindowTitle('Camera Settings Gui')
-        self.win.setGeometry(300,600,300,300)
+        self.win.setGeometry(300,600,300,600)
         self.win.setLayout(self.vbox)
         self.win.show()
         sys.exit(app.exec_())
+
+    def width_box(self, initial_value=1000):
+        self.widthlbl = QLabel()
+        self.widthlbl.setText('Width')
+        self.width_text = QLineEdit()
+        self.width_text.setText(str(initial_value))
+        self.width_text.textChanged[str].connect(self.width_callback)
+
+    def width_callback(self):
+        pass
+
+    def height_box(self, initial_value=1000):
+        self.heightlbl = QLabel()
+        self.heightlbl.setText('Height')
+        self.height_text = QLineEdit()
+        self.height_text.setText(str(initial_value))
+        self.height_text.textChanged[str].connect(self.height_callback)
+
+    def height_callback(self):
+        pass
+
+    def xoffset_box(self, initial_value=1000):
+        self.xoffsetlbl = QLabel()
+        self.xoffsetlbl.setText('Xoffset')
+        self.xoffset_text = QLineEdit()
+        self.xoffset_text.setText(str(initial_value))
+        self.xoffset_text.textChanged[str].connect(self.xoffset_callback)
+
+    def xoffset_callback(self):
+        pass
+
+    def yoffset_box(self, initial_value=1000):
+        self.yoffsetlbl = QLabel()
+        self.yoffsetlbl.setText('Yoffset')
+        self.yoffset_text = QLineEdit()
+        self.yoffset_text.setText(str(initial_value))
+        self.yoffset_text.textChanged[str].connect(self.yoffset_callback)
+
+    def yoffset_callback(self):
+        pass
+
+
+    def select_roi_button(self):
+        self.select_roi = QPushButton("Select ROI")
+
+    def framerate_box(self, initial_value=1000):
+        self.frameratelbl = QLabel()
+        self.frameratelbl.setText('Framerate')
+        self.framerate_text = QLineEdit()
+        self.framerate_text.setText(str(initial_value))
+        self.framerate_text.textChanged[str].connect(self.framerate_callback)
+
+    def framerate_callback(self):
+        pass
+
+    def exposure_box(self, initial_value=1000):
+        self.exposurelbl = QLabel()
+        self.exposurelbl.setText('texp (s)')
+        self.exposure_text = QLineEdit()
+        self.exposure_text.setText(str(initial_value))
+        self.exposure_text.textChanged[str].connect(self.exposure_callback)
+
+    def exposure_callback(self):
+        pass
+
 
     def gain_value_slider(self, initial_value=1):
         self.gain_lbl = QLabel()
@@ -224,6 +332,53 @@ class CameraSettingsGUI:
     def _gain_callback(self):
         gain_val = self.gain_slider.value()
         self.gain_lbl.setText('Gain : ' + str(gain_val))
+
+
+
+    def blacklevel_slider(self, initial_value=100):
+        self.blacklevel = initial_value
+        self.black_val_lbl = QLabel()
+        self.black_val_lbl.setText("Black Level: " + str(self.blacklevel))
+        self.black_val = QSlider(Qt.Horizontal)
+        self.black_val.setRange(1, 255)
+        self.black_val.setTickInterval(1)
+        self.black_val.setTickPosition(QSlider.TicksBelow)
+        self.black_val.setValue(self.blacklevel)
+        self.black_val.valueChanged.connect(self._black_val_callback)
+
+    def _black_val_callback(self):
+        self.blacklevel = self.black_val.value()
+        self.black_val_lbl.setText("Black Level: " + str(self.blacklevel))
+
+    def duallevel_slider(self, initial_value=100):
+        self.duallevel = initial_value
+        self.dual_val_lbl = QLabel()
+        self.dual_val_lbl.setText("Dual Level: " + str(self.duallevel))
+        self.dual_val = QSlider(Qt.Horizontal)
+        self.dual_val.setRange(1, 255)
+        self.dual_val.setTickInterval(1)
+        self.dual_val.setTickPosition(QSlider.TicksBelow)
+        self.dual_val.setValue(self.duallevel)
+        self.dual_val.valueChanged.connect(self._dual_val_callback)
+
+    def _dual_val_callback(self):
+        self.duallevel = self.dual_val.value()
+        self.dual_val_lbl.setText("Dual Level: " + str(self.duallevel))
+
+    def triplelevel_slider(self, initial_value=100):
+        self.triplelevel = initial_value
+        self.triple_val_lbl = QLabel()
+        self.triple_val_lbl.setText("Triple Level: " + str(self.triplelevel))
+        self.triple_val = QSlider(Qt.Horizontal)
+        self.triple_val.setRange(1, 255)
+        self.triple_val.setTickInterval(1)
+        self.triple_val.setTickPosition(QSlider.TicksBelow)
+        self.triple_val.setValue(self.triplelevel)
+        self.triple_val.valueChanged.connect(self._triple_val_callback)
+
+    def _triple_val_callback(self):
+        self.triplelevel = self.triple_val.value()
+        self.triple_val_lbl.setText("Triple Level: " + str(self.triplelevel))
 
     def fpn_checkbox(self, initial_value=2):
         self.fpn_cb = QCheckBox('FPN')
@@ -277,9 +432,9 @@ class CameraSettingsGUI:
     def reset_config_callback(self):
         pass
 
-    def mcf_file_label(self, label='mcf test'):
+    def cam_settings_label(self, label='mcf test'):
         widget = QWidget()
-        self.mcf_label = QLabel(label)
+        self.cam_settings = QLabel(label)
 
     def add_edit_text(self):
         self.lbl = QLabel(self)
