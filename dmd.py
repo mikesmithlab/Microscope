@@ -21,16 +21,15 @@ class DMDGui:
         widget4=QWidget()
         widget5=QWidget()
 
-        self.led_hbox = QHBoxLayout()
+
         self.led_intensity_hbox = QHBoxLayout()
         self.upload_hbox = QHBoxLayout()
         self.display_hbox = QHBoxLayout()
         self.framerate_hbox = QHBoxLayout()
 
+        led_chooser = LEDselector(self.win, self.led_chooser_callback)
+        self.vbox.addWidget(led_chooser)
 
-        self.red_led_checkbox()
-        self.green_led_checkbox()
-        self.blue_led_checkbox()
         self.intensity = 0
         self.led_intensity_slider()
         self.framerate = 100
@@ -38,28 +37,21 @@ class DMDGui:
         self.filename='test'
         self.upload_button()
         self.display=0
-        self.display_off_toggle()
-        self.display_on_toggle()
-        self.display_cycle_toggle()
 
-        self.led_hbox.addWidget(self.red_led)
-        self.led_hbox.addWidget(self.green_led)
-        self.led_hbox.addWidget(self.blue_led)
+        display_chooser = DisplaySelector(self.win, self.display_chooser_callback)
+        self.vbox.addWidget(display_chooser)
+
+
         self.led_intensity_hbox.addWidget(self.led_intensity_lblB)
         self.led_intensity_hbox.addWidget(self.led_intensity)
         self.framerate_hbox.addWidget((self.image_framerate))
         self.upload_hbox.addWidget(self.upload_images)
-        self.display_hbox.addWidget(self.display_off)
-        self.display_hbox.addWidget(self.display_on)
-        self.display_hbox.addWidget(self.display_cycle)
 
 
-
-        widget.setLayout(self.led_hbox)
         widget2.setLayout(self.led_intensity_hbox)
         widget5.setLayout(self.framerate_hbox)
         widget3.setLayout(self.upload_hbox)
-        widget4.setLayout(self.display_hbox)
+
 
         self.vbox.addWidget(widget)
         self.vbox.addWidget(widget2)
@@ -72,26 +64,8 @@ class DMDGui:
         self.win.show()
         sys.exit(app.exec_())
 
-    def red_led_checkbox(self):
-        self.red_led = QCheckBox("red")
-        self.red_led.stateChanged.connect(self.red_led_callback)
-
-    def red_led_callback(self):
-        pass
-
-    def green_led_checkbox(self):
-        self.green_led = QCheckBox("green")
-        self.green_led.stateChanged.connect(self.green_led_callback)
-
-    def green_led_callback(self):
-        pass
-
-    def blue_led_checkbox(self):
-        self.blue_led = QCheckBox("blue")
-        self.blue_led.stateChanged.connect(self.blue_led_callback)
-
-    def blue_led_callback(self):
-        pass
+    def led_chooser_callback(self, red, green, blue):
+        print(red, green, blue)
 
     def led_intensity_slider(self):
         self.led_intensity_lblB = QLabel()
@@ -114,35 +88,10 @@ class DMDGui:
     def upload_callback(self):
         pass
 
-    def display_off_toggle(self):
-        #0
-        self.display_off = QPushButton("Display Off")
-        self.display_off.setCheckable(True)
-        self.display_off.clicked[bool].connect(self.display_off_callback)
+    def display_chooser_callback(self, display_off, display_on, display_cycle):
 
-    def display_on_toggle(self):
-        #1
-        self.display_on = QPushButton("Display On")
-        self.display_on.setCheckable(True)
-        self.display_on.clicked[bool].connect(self.display_on_callback)
+        print(display_off, display_on, display_cycle)
 
-    def display_cycle_toggle(self):
-        #2
-        self.display_cycle = QPushButton("Display Cycle")
-        self.display_cycle.setCheckable(True)
-        self.display_cycle.clicked[bool].connect(self.display_cycle_callback)
-
-    def display_off_callback(self, pressed):
-        self.display_on.setChecked(False)
-        self.display_cycle.setChecked(False)
-
-    def display_on_callback(self):
-        self.display_off.setChecked(False)
-        self.display_cycle.setChecked(False)
-
-    def display_cycle_callback(self):
-        self.display_on.setChecked(False)
-        self.display_off.setChecked(False)
 
     def image_framerate_textbox(self):
         self.image_framerate = QLineEdit()
@@ -166,7 +115,105 @@ class DMDGui:
         self.vbox.addWidget(widget)
 
 
+class LEDselector(QWidget):
 
+    def __init__(self, parent, function):
+        self.red = False
+        self.green = False
+        self.blue = False
+
+        self.function = function
+        QWidget.__init__(self, parent)
+        self.setLayout(QHBoxLayout())
+
+        red_led = QCheckBox("red")
+        red_led.stateChanged.connect(self.red_led_callback)
+
+        green_led = QCheckBox("green")
+        green_led.stateChanged.connect(self.green_led_callback)
+
+        blue_led = QCheckBox("blue")
+        blue_led.stateChanged.connect(self.blue_led_callback)
+
+        self.layout().addWidget(red_led)
+        self.layout().addWidget(green_led)
+        self.layout().addWidget(blue_led)
+
+    def blue_led_callback(self, state):
+        if state == Qt.Checked:
+            self.blue = True
+        else:
+            self.blue = False
+        self.call_function()
+
+    def red_led_callback(self, state):
+        if state == Qt.Checked:
+            self.red = True
+        else:
+            self.red = False
+        self.call_function()
+
+    def green_led_callback(self, state):
+        if state == Qt.Checked:
+            self.green = True
+        else:
+            self.green = False
+        self.call_function()
+
+    def call_function(self):
+        self.function(self.red, self.green, self.blue)
+
+
+class DisplaySelector(QWidget):
+
+    def __init__(self, parent, function):
+        self.off = True
+        self.on = False
+        self.cycle = False
+
+        self.function = function
+        QWidget.__init__(self, parent)
+        self.setLayout(QHBoxLayout())
+
+        self.display_off = QPushButton("off")
+        self.display_off.setCheckable(True)
+        self.display_off.clicked[bool].connect(self.display_off_callback)
+
+        self.display_on = QPushButton("on")
+        self.display_on.setCheckable(True)
+        self.display_on.clicked[bool].connect(self.display_on_callback)
+
+        self.display_cycle = QPushButton("cycle")
+        self.display_cycle.setCheckable(True)
+        self.display_cycle.clicked[bool].connect(self.display_cycle_callback)
+
+        self.layout().addWidget(self.display_off)
+        self.layout().addWidget(self.display_on)
+        self.layout().addWidget(self.display_cycle)
+
+    def display_off_callback(self, state):
+        self.off = True
+        self.on = False
+        self.cycle = False
+        self.call_function()
+
+    def display_on_callback(self, state):
+        self.on = True
+        self.off = False
+        self.cycle = False
+        self.call_function()
+
+    def display_cycle_callback(self, state):
+        self.cycle = True
+        self.off = False
+        self.on = False
+        self.call_function()
+
+    def call_function(self):
+        self.display_off.setChecked(self.off)
+        self.display_on.setChecked(self.on)
+        self.display_cycle.setChecked(self.cycle)
+        self.function(self.off, self.on, self.cycle)
 
 if __name__ == '__main__':
     dmd = DMDGui()
