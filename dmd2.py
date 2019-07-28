@@ -16,62 +16,21 @@ class DMDGui:
         self.win = QWidget()
         self.vbox = QVBoxLayout(self.win)
 
-        self.led_intensity_hbox = QHBoxLayout()
-        self.upload_hbox = QHBoxLayout()
-        self.display_hbox = QHBoxLayout()
-        self.framerate_hbox = QHBoxLayout()
-
-        led_chooser = LEDselector(self.win, self.led_chooser_callback)
-        self.vbox.addWidget(led_chooser)
-
-        self.intensity = 0
-        self.led_intensity_slider()
-        #self.framerate = 100
-        self.image_framerate_textbox()
-        #self.filename='test'
-        self.upload_button()
-        #self.display=0
-
+        led_chooser = LEDselector(self.win)
         display_chooser = DisplaySelector(self.win, self.display_chooser_callback)
+        file_chooser = FileSelector(self.win, self.file_chooser_callback)
+
+        self.vbox.addWidget(led_chooser)
         self.vbox.addWidget(display_chooser)
+        self.vbox.addWidget(file_selecter)
 
 
-        self.led_intensity_hbox.addWidget(self.led_intensity_lblB)
-        self.led_intensity_hbox.addWidget(self.led_intensity)
-        self.framerate_hbox.addWidget((self.image_framerate))
-        self.upload_hbox.addWidget(self.upload_images)
 
-
-        #widget2.setLayout(self.led_intensity_hbox)
-        #widget5.setLayout(self.framerate_hbox)
-        #widget3.setLayout(self.upload_hbox)
-
-
-        #self.vbox.addWidget(widget)
-        #self.vbox.addWidget(widget2)
-        #self.vbox.addWidget(widget5)
-        #self.vbox.addWidget(widget3)
-        #self.vbox.addWidget(widget4)
         # Finalise window
         self.win.setWindowTitle('DMD Control Gui')
         self.win.setLayout(self.vbox)
         self.win.show()
         sys.exit(app.exec_())
-
-    def led_chooser_callback(self, red, green, blue):
-        print(red, green, blue)
-
-    def led_intensity_slider(self):
-        self.led_intensity_lblB = QLabel()
-        self.led_intensity_lblB.setText('Led intensity : ' + str(self.intensity))
-        self.led_intensity = QSlider(Qt.Horizontal)
-        self.led_intensity.setRange(0, 100)
-        self.led_intensity.setValue(self.intensity)
-        self.led_intensity.valueChanged.connect(self.led_intensity_callback)
-        
-    def led_intensity_callback(self):
-        self.intensity = self.led_intensity.value()
-        self.led_intensity_lblB.setText('Led intensity : ' + str(self.intensity))
 
     def upload_button(self):
         self.upload_filename_lblB = QLabel()
@@ -83,8 +42,8 @@ class DMDGui:
         pass
 
     def display_chooser_callback(self, display_off, display_on, display_cycle):
-
         print(display_off, display_on, display_cycle)
+
 
 
     def image_framerate_textbox(self):
@@ -110,51 +69,46 @@ class DMDGui:
 
 class LEDselector(QWidget):
 
-    def __init__(self, parent, function):
-        self.red = False
-        self.green = False
-        self.blue = False
+    def __init__(self, parent):
+        self.redval = 0
+        self.greenval = 0
+        self.blueval = 0
 
-        self.function = function
         QWidget.__init__(self, parent)
-        self.setLayout(QHBoxLayout())
+        self.setLayout(QVBoxLayout())
 
-        red_led = QCheckBox("red")
-        red_led.stateChanged.connect(self.red_led_callback)
+        self.red_led = CheckedSlider(parent,"red", self.red_led_val, 0, 100, 1, self.redval)
+        self.green_led = CheckedSlider(parent,"green", self.green_led_val, 0, 100, 1, self.greenval)
+        self.blue_led = CheckedSlider(parent,"blue", self.blue_led_val, 0, 100, 1, self.blueval)
 
-        green_led = QCheckBox("green")
-        green_led.stateChanged.connect(self.green_led_callback)
+        self.layout().addWidget(self.red_led)
+        self.layout().addWidget(self.green_led)
+        self.layout().addWidget(self.blue_led)
 
-        blue_led = QCheckBox("blue")
-        blue_led.stateChanged.connect(self.blue_led_callback)
-
-        self.layout().addWidget(red_led)
-        self.layout().addWidget(green_led)
-        self.layout().addWidget(blue_led)
-
-    def blue_led_callback(self, state):
-        if state == Qt.Checked:
-            self.blue = True
+    def red_led_val(self, redval):
+        if self.red_led.checked:
+            self.redval = redval
         else:
-            self.blue = False
-        self.call_function()
+            self.redval = 0
+            self.red_led.slider.setSliderPosition(0)
 
-    def red_led_callback(self, state):
-        if state == Qt.Checked:
-            self.red = True
+    def green_led_val(self, greenval):
+        if self.green_led.checked:
+            self.greenval = greenval
         else:
-            self.red = False
-        self.call_function()
+            self.greenval = 0
+            self.green_led.slider.setSliderPosition(0)
 
-    def green_led_callback(self, state):
-        if state == Qt.Checked:
-            self.green = True
+    def blue_led_val(self, blueval):
+        if self.blue_led.checked:
+            self.blueval = blueval
         else:
-            self.green = False
-        self.call_function()
+            self.blueval = 0
+            self.blue_led.slider.setSliderPosition(0)
 
-    def call_function(self):
-        self.function(self.red, self.green, self.blue)
+
+    def change_led_settings(self, colour, value):
+        pass
 
 
 class DisplaySelector(QWidget):
@@ -207,6 +161,10 @@ class DisplaySelector(QWidget):
         self.display_on.setChecked(self.on)
         self.display_cycle.setChecked(self.cycle)
         self.function(self.off, self.on, self.cycle)
+
+class FileSelector:
+    def __init__(self, parent, function):
+        
 
 if __name__ == '__main__':
     dmd = DMDGui()
