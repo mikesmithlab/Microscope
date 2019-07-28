@@ -3,6 +3,7 @@ from PyQt5.QtGui import QPixmap, QImage, QPainterPath, QCloseEvent
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QApplication,
                              QSlider, QHBoxLayout, QPushButton, QCheckBox, QLineEdit)
 from Generic.pyqt5_widgets import CheckedSlider
+from Generic.filedialogs import open_directory
 
 import sys
 
@@ -18,11 +19,11 @@ class DMDGui:
 
         led_chooser = LEDselector(self.win)
         display_chooser = DisplaySelector(self.win, self.display_chooser_callback)
-        file_chooser = FileSelector(self.win, self.file_chooser_callback)
+        file_chooser = FileSelector(self.win)
 
         self.vbox.addWidget(led_chooser)
         self.vbox.addWidget(display_chooser)
-        self.vbox.addWidget(file_selecter)
+        self.vbox.addWidget(file_chooser)
 
 
 
@@ -162,9 +163,29 @@ class DisplaySelector(QWidget):
         self.display_cycle.setChecked(self.cycle)
         self.function(self.off, self.on, self.cycle)
 
-class FileSelector:
-    def __init__(self, parent, function):
-        
+class FileSelector(QWidget):
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.directory = 'None Selected'
+        self.parent = parent
+        self.setLayout(QHBoxLayout())
+
+        self.load_file_button = QPushButton("Load Patterns")
+        self.load_file_button.clicked[bool].connect(self.load_file_callback)
+        self.load_file_label = QLabel(self)
+        self.load_file_label.setText(self.directory)
+
+        self.layout().addWidget(self.load_file_button)
+        self.layout().addWidget(self.load_file_label)
+
+    def load_file_callback(self):
+        directory = open_directory(caption='Select images', directory='/opt/Microscope/DMD/', parent=self.parent)
+        self.directory = directory
+        print(self.directory)
+        self.load_file_label.setText(self.directory)
+
+
+
 
 if __name__ == '__main__':
     dmd = DMDGui()
