@@ -9,7 +9,8 @@ import SiSoPyInterface as SISO
 
 from Generic.filedialogs import save_filename
 from Generic.video import WriteVideo
-from Generic.images import QtImageViewer, hstack
+from Generic.pyqt5_widgets import QtImageViewer
+from Generic.images import hstack
 from microscope.cam_settings import CameraSettings, CameraSettingsGUI
 
 class Camera:

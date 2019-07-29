@@ -78,30 +78,30 @@ class LEDselector(QWidget):
         QWidget.__init__(self, parent)
         self.setLayout(QVBoxLayout())
 
-        self.red_led = CheckedSlider(parent,"red", self.red_led_val, 0, 100, 1, self.redval)
-        self.green_led = CheckedSlider(parent,"green", self.green_led_val, 0, 100, 1, self.greenval)
-        self.blue_led = CheckedSlider(parent,"blue", self.blue_led_val, 0, 100, 1, self.blueval)
+        self.red_led = CheckedSlider(parent,"red", self.red_led_val, start=0, end=100, dpi=1, initial=self.redval)
+        self.green_led = CheckedSlider(parent,"green", self.green_led_val, start=0, end=100, dpi=1, initial=self.greenval)
+        self.blue_led = CheckedSlider(parent,"blue", self.blue_led_val, start=0, end=100, dpi=1, initial=self.blueval)
 
         self.layout().addWidget(self.red_led)
         self.layout().addWidget(self.green_led)
         self.layout().addWidget(self.blue_led)
 
     def red_led_val(self, redval):
-        if self.red_led.checked:
+        if self.red_led.check:
             self.redval = redval
         else:
             self.redval = 0
             self.red_led.slider.setSliderPosition(0)
 
     def green_led_val(self, greenval):
-        if self.green_led.checked:
+        if self.green_led.check:
             self.greenval = greenval
         else:
             self.greenval = 0
             self.green_led.slider.setSliderPosition(0)
 
     def blue_led_val(self, blueval):
-        if self.blue_led.checked:
+        if self.blue_led.check:
             self.blueval = blueval
         else:
             self.blueval = 0
@@ -162,6 +162,21 @@ class DisplaySelector(QWidget):
         self.display_on.setChecked(self.on)
         self.display_cycle.setChecked(self.cycle)
         self.function(self.off, self.on, self.cycle)
+
+class PatternRateSelector(QWidget):
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.directory = 'None Selected'
+        self.parent = parent
+        self.setLayout(QHBoxLayout())
+
+        self.rate_edit = QLineEdit()
+        self.exposure = QLineEdit()
+
+        self.layout().addWidget(self.load_file_button)
+        self.layout().addWidget(self.load_file_label)
+
+
 
 class FileSelector(QWidget):
     def __init__(self, parent):

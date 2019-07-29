@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QApplication,
 
 from Generic.filedialogs import load_filename, save_filename, open_directory
 from Generic.file_handling import load_dict_from_file, save_dict_to_file
+from Generic.pyqt5_widgets import CheckedSlider
 
 ''''
 Reference for camera commmands can be found in cl600x2-SU-07-D_manual.pdf in microscope folder
@@ -164,6 +165,10 @@ class CameraSettingsGUI:
         app = QApplication(sys.argv)
         self.win = QWidget()
         self.vbox = QVBoxLayout(self.win)
+
+        level_chooser = LevelSelector(self.win)
+
+
 
         self.width_box()
         self.height_box()
@@ -440,6 +445,52 @@ class CameraSettingsGUI:
         self.lbl = QLabel(self)
         qle = QLineEdit(self)
         qle.textChanged[str].connect(self.onChanged)
+
+
+class LevelSelector(QWidget):
+
+    def __init__(self, parent):
+        self.blackval = 0
+        self.doubleval = 0
+        self.tripleval = 0
+
+        QWidget.__init__(self, parent)
+        self.setLayout(QVBoxLayout())
+
+        self.black_level = CheckedSlider(parent,"black", self.black_level_val, start=0, end=100, dpi=1, initial=self.redval)
+        self.double_level = CheckedSlider(parent,"double", self.double_level_val, start=0, end=100, dpi=1, initial=self.greenval)
+        self.triple_level = CheckedSlider(parent,"triple", self.triple_level_val, start=0, end=100, dpi=1, initial=self.blueval)
+
+        self.layout().addWidget(self.balck_level)
+        self.layout().addWidget(self.double_level)
+        self.layout().addWidget(self.triple_level)
+
+    def black_level_val(self, blackval):
+        if self.black_level.check:
+            self.blackval = blackval
+        else:
+            self.blackval = 0
+            self.black_level.slider.setSliderPosition(0)
+
+    def double_level_val(self, doubleval):
+        if self.double_level.check:
+            self.double_level = doubleval
+        else:
+            self.double_level_val = 0
+            self.double_level.slider.setSliderPosition(0)
+
+    def triple_level_val(self, tripleval):
+        if self.triple_level.check:
+            self.tripleval = tripleval
+        else:
+            self.tripleval = 0
+            self.triple_led.slider.setSliderPosition(0)
+
+
+    def change_led_settings(self, colour, value):
+        pass
+
+
 
 
 class CamSettingError(Exception):
