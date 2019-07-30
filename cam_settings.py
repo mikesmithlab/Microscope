@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QApplication,
 
 from Generic.filedialogs import load_filename, save_filename, open_directory
 from Generic.file_handling import load_dict_from_file, save_dict_to_file
-from Generic.pyqt5_widgets import CheckedSlider
+from Generic.pyqt5_widgets import CheckedSlider, CheckBox, Slider
 
 ''''
 Reference for camera commmands can be found in cl600x2-SU-07-D_manual.pdf in microscope folder
@@ -123,7 +123,6 @@ class CameraSettings:
 
     def _check_new_max_vals(self):
         output = self.write_single_cam_command('#A')
-        print(output)
         self.cam_dict['framerate'][3][1] = str(int(output[0][1:-1]))
         output = self.write_single_cam_command('#a')
         self.cam_dict['exptime'][3][1] = str(int(output[0][1:-1]))
@@ -167,6 +166,7 @@ class CameraSettingsGUI:
         self.vbox = QVBoxLayout(self.win)
 
         level_chooser = LevelSelector(self.win)
+        self.vbox.addWidget(level_chooser)
 
 
 
@@ -179,10 +179,6 @@ class CameraSettingsGUI:
         self.exposure_box()
 
         self.gain_value_slider()
-        self.blacklevel_slider()
-        self.duallevel_slider()
-        self.triplelevel_slider()
-        self.fpn_checkbox()
         self.lut_button()
         self.lut_file_label()
         self.load_config_button()
@@ -214,13 +210,6 @@ class CameraSettingsGUI:
         gain_box.addWidget(self.gain_lbl)
         gain_box.addWidget(self.gain_slider)
         gain_box.addWidget(self.gain_slider)
-        gain_box.addWidget(self.black_val_lbl)
-        gain_box.addWidget(self.black_val)
-        gain_box.addWidget(self.dual_val_lbl)
-        gain_box.addWidget(self.dual_val)
-        gain_box.addWidget(self.triple_val_lbl)
-        gain_box.addWidget(self.triple_val)
-        gain_box.addWidget(self.fpn_cb)
 
 
         lut_box = QHBoxLayout()
@@ -254,7 +243,7 @@ class CameraSettingsGUI:
 
         # Finalise window
         self.win.setWindowTitle('Camera Settings Gui')
-        self.win.setGeometry(300,600,300,600)
+        self.win.setGeometry(300,600,400,600)
         self.win.setLayout(self.vbox)
         self.win.show()
         sys.exit(app.exec_())
@@ -340,61 +329,6 @@ class CameraSettingsGUI:
 
 
 
-    def blacklevel_slider(self, initial_value=100):
-        self.blacklevel = initial_value
-        self.black_val_lbl = QLabel()
-        self.black_val_lbl.setText("Black Level: " + str(self.blacklevel))
-        self.black_val = QSlider(Qt.Horizontal)
-        self.black_val.setRange(1, 255)
-        self.black_val.setTickInterval(1)
-        self.black_val.setTickPosition(QSlider.TicksBelow)
-        self.black_val.setValue(self.blacklevel)
-        self.black_val.valueChanged.connect(self._black_val_callback)
-
-    def _black_val_callback(self):
-        self.blacklevel = self.black_val.value()
-        self.black_val_lbl.setText("Black Level: " + str(self.blacklevel))
-
-    def duallevel_slider(self, initial_value=100):
-        self.duallevel = initial_value
-        self.dual_val_lbl = QLabel()
-        self.dual_val_lbl.setText("Dual Level: " + str(self.duallevel))
-        self.dual_val = QSlider(Qt.Horizontal)
-        self.dual_val.setRange(1, 255)
-        self.dual_val.setTickInterval(1)
-        self.dual_val.setTickPosition(QSlider.TicksBelow)
-        self.dual_val.setValue(self.duallevel)
-        self.dual_val.valueChanged.connect(self._dual_val_callback)
-
-    def _dual_val_callback(self):
-        self.duallevel = self.dual_val.value()
-        self.dual_val_lbl.setText("Dual Level: " + str(self.duallevel))
-
-    def triplelevel_slider(self, initial_value=100):
-        self.triplelevel = initial_value
-        self.triple_val_lbl = QLabel()
-        self.triple_val_lbl.setText("Triple Level: " + str(self.triplelevel))
-        self.triple_val = QSlider(Qt.Horizontal)
-        self.triple_val.setRange(1, 255)
-        self.triple_val.setTickInterval(1)
-        self.triple_val.setTickPosition(QSlider.TicksBelow)
-        self.triple_val.setValue(self.triplelevel)
-        self.triple_val.valueChanged.connect(self._triple_val_callback)
-
-    def _triple_val_callback(self):
-        self.triplelevel = self.triple_val.value()
-        self.triple_val_lbl.setText("Triple Level: " + str(self.triplelevel))
-
-    def fpn_checkbox(self, initial_value=2):
-        self.fpn_cb = QCheckBox('FPN')
-        if initial_value == 2:
-            #A ticked checkbox = 2 and unchecked = 0
-            self.fpn_cb.toggle()
-        self.fpn_cb.stateChanged.connect(self._fpn_callback)
-
-    def _fpn_callback(self, state):
-        self.fpn_val = state
-        print(state)
 
     def lut_button(self):
         widget = QWidget()
@@ -447,23 +381,47 @@ class CameraSettingsGUI:
         qle.textChanged[str].connect(self.onChanged)
 
 
+class FrameSelector(QWidget):
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        vbox = QVBoxLayout()
+        hbox = QHBoxLayout()
+
+        self.setLayout(QVBoxLayout())
+
 class LevelSelector(QWidget):
 
     def __init__(self, parent):
+        self.gainval = 1
+        self.fpnval = False
         self.blackval = 0
         self.doubleval = 0
         self.tripleval = 0
 
+
         QWidget.__init__(self, parent)
         self.setLayout(QVBoxLayout())
 
-        self.black_level = CheckedSlider(parent,"black", self.black_level_val, start=0, end=100, dpi=1, initial=self.redval)
-        self.double_level = CheckedSlider(parent,"double", self.double_level_val, start=0, end=100, dpi=1, initial=self.greenval)
-        self.triple_level = CheckedSlider(parent,"triple", self.triple_level_val, start=0, end=100, dpi=1, initial=self.blueval)
+        self.gain_level = Slider(parent, "Gain", self.gain_callback, start=1, end=5, dpi=1, initial=1)
+        self.fpn_cb = CheckBox(parent, "FPN", self.fpn_callback)
+        self.black_level = CheckedSlider(parent,"black", self.black_level_val, start=0, end=100, dpi=1.0, initial=self.blackval)
+        self.double_level = CheckedSlider(parent,"double", self.double_level_val, start=0, end=100, dpi=1.0, initial=self.doubleval)
+        self.triple_level = CheckedSlider(parent,"triple", self.triple_level_val, start=0, end=100, dpi=1.0, initial=self.tripleval)
 
-        self.layout().addWidget(self.balck_level)
+        self.layout().addWidget(self.gain_level)
+        self.layout().addWidget(self.fpn_cb)
+        self.layout().addWidget(self.black_level)
         self.layout().addWidget(self.double_level)
         self.layout().addWidget(self.triple_level)
+
+    def gain_callback(self, gainval):
+        self.gainval=gainval
+
+    def fpn_callback(self, state):
+        self.fpnval = bool(self.fpn_cb.checkState())
+
+
 
     def black_level_val(self, blackval):
         if self.black_level.check:
@@ -474,9 +432,9 @@ class LevelSelector(QWidget):
 
     def double_level_val(self, doubleval):
         if self.double_level.check:
-            self.double_level = doubleval
+            self.doubleval = doubleval
         else:
-            self.double_level_val = 0
+            self.doubleval = 0
             self.double_level.slider.setSliderPosition(0)
 
     def triple_level_val(self, tripleval):
