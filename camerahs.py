@@ -125,7 +125,7 @@ class Camera:
 
 class CameraControlGui:
     def __init__(self):
-        self.cam = Camera()
+        #self.cam = Camera()
         self.cam.initialise()
         self.init_ui()
 
@@ -286,7 +286,7 @@ class CameraVidEditGui:
 
 
 if __name__ == '__main__':
-    import SiSoPyInterface
+    #import SiSoPyInterface
 
     #camGUI = CameraControlGui()
 

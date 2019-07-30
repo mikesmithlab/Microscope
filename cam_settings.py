@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QApplication,
 
 from Generic.filedialogs import load_filename, save_filename, open_directory
 from Generic.file_handling import load_dict_from_file, save_dict_to_file
-from Generic.pyqt5_widgets import CheckedSlider, CheckBox, Slider
+from Generic.pyqt5_widgets import CheckedSlider, CheckBox, Slider, LblEdit
 
 ''''
 Reference for camera commmands can be found in cl600x2-SU-07-D_manual.pdf in microscope folder
@@ -165,7 +165,9 @@ class CameraSettingsGUI:
         self.win = QWidget()
         self.vbox = QVBoxLayout(self.win)
 
+        roi_chooser = ROISelector(self.win)
         level_chooser = LevelSelector(self.win)
+        self.vbox.addWidget(roi_chooser)
         self.vbox.addWidget(level_chooser)
 
 
@@ -381,15 +383,6 @@ class CameraSettingsGUI:
         qle.textChanged[str].connect(self.onChanged)
 
 
-class FrameSelector(QWidget):
-
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-        vbox = QVBoxLayout()
-        hbox = QHBoxLayout()
-
-        self.setLayout(QVBoxLayout())
-
 class LevelSelector(QWidget):
 
     def __init__(self, parent):
@@ -448,7 +441,31 @@ class LevelSelector(QWidget):
     def change_led_settings(self, colour, value):
         pass
 
+class ROISelector(QWidget):
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.setLayout(QHBoxLayout())
+        self.width_box = LblEdit(parent, "Width", 1024, self.width_callback)
+        self.height_box = LblEdit(parent, "Height", 1024, self.height_callback)
+        self.xoffset_box = LblEdit(parent, "Xoffset", 0, self.xoffset_callback)
+        self.yoffset_box = LblEdit(parent, "Yoffset", 0, self.yoffset_callback)
 
+        self.layout().addWidget(self.width_box)
+        self.layout().addWidget(self.height_box)
+        self.layout().addWidget(self.xoffset_box)
+        self.layout().addWidget(self.yoffset_box)
+
+    def width_callback(self):
+        pass
+
+    def height_callback(self):
+        pass
+
+    def yoffset_callback(self):
+        pass
+
+    def xoffset_callback(self):
+        pass
 
 
 class CamSettingError(Exception):
