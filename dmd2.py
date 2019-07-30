@@ -210,7 +210,7 @@ class PatternRateSelector(QWidget):
 
     def exposure_callback(self):
         value = self.exposure.text()
-        
+
 
     def triggered_callback(self, state):
         self.triggered_val = bool(self.triggered.checkState())
