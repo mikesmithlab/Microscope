@@ -126,7 +126,7 @@ class Camera:
 class CameraControlGui:
     def __init__(self):
         #self.cam = Camera()
-        self.cam.initialise()
+        #self.cam.initialise()
         self.init_ui()
 
     def init_ui(self):
@@ -135,28 +135,64 @@ class CameraControlGui:
         self.win = QWidget()
         self.vbox = QVBoxLayout(self.win)
 
-        self.add_button()
+        self.saveas = SaveAs(self.win)
+        self.record = RecordControls(self.win)
+        self.camset = QPushButton("Camera Settings")
+        self.camset.clicked.connect(self.camset_callback)
+
+        self.vbox.addWidget(self.camset)
+        self.vbox.addWidget(self.saveas)
+        self.vbox.addWidget(self.record)
+
 
         # Finalise window
         self.win.setWindowTitle('VideoEditGui')
+        self.win.setGeometry(10, 300, 200, 100)
         self.win.setLayout(self.vbox)
         self.win.show()
         sys.exit(app.exec_())
 
-    def add_button(self):
-        # Add Save Button
-        widget = QWidget()
-        hbox = QHBoxLayout()
-        self.saveButton = QPushButton("Save")
-        self.saveButton.clicked.connect(self.on_click)
-        hbox.addWidget(self.saveButton)
-        widget.setLayout(hbox)
-        self.vbox.addWidget(widget)
+    def camset_callback(self):
+        self.cam=CameraSettingsGUI()
 
-    def on_click(self, event):
-        #print('test')
-        self.cam.save(first=self.edit_first_frame, last=self.edit_last_frame)
+class SaveAs(QWidget):
+    def __init__(self, parent):
+        self.parent=parent
+        self.saveas_filename = "DUmmy"
+        QWidget.__init__(self, parent)
+        self.setLayout(QVBoxLayout())
+        self.saveas_button=QPushButton("Save as")
+        self.saveas_button.clicked.connect(self.saveas_callback)
+        self.saveas_lbl=QLabel(self.saveas_filename)
+        self.layout().addWidget(self.saveas_button)
+        self.layout().addWidget(self.saveas_lbl)
 
+    def saveas_callback(self):
+        self.filename = save_filename(caption="Choose base pathname",
+                                     directory="", parent=self.parent)
+
+
+class RecordControls(QWidget):
+    def __init__(self, parent):
+        self.saveas_filename = "DUmmy"
+        QWidget.__init__(self, parent)
+        self.setLayout(QHBoxLayout())
+
+        self.snap = QPushButton("Snap")
+        self.snap.clicked.connect(self.snap_callback)
+        self.trigger = QPushButton("Trigger")
+        self.trigger.setCheckable(True)
+        self.trigger.clicked.connect(self.trigger_callback)
+        self.layout().addWidget(self.snap)
+        self.layout().addWidget(self.trigger)
+
+    def snap_callback(self):
+        pass
+
+    def trigger_callback(self):
+        pass
+
+'''
 class CameraVidEditGui:
     def __init__(self, cam, num_imgs=2):
         self.num_imgs = num_imgs
@@ -284,13 +320,13 @@ class CameraVidEditGui:
 
 
 
-
+'''
 if __name__ == '__main__':
     #import SiSoPyInterface
 
-    #camGUI = CameraControlGui()
+    camGUI = CameraControlGui()
 
-    camSettings = CameraSettingsGUI()
+    #camSettings = CameraSettingsGUI()
 
     #cam.initialise()
     #cam.grab()

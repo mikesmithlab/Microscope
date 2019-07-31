@@ -156,231 +156,37 @@ class CameraSettings:
 
 class CameraSettingsGUI:
 
-    def __init__(self):
-        self.init_ui()
+    def __init__(self, parent=None):
+        self.mcf_filename = "Blah.mcf"
+        self.init_ui(parent)
 
-    def init_ui(self):
+    def init_ui(self, parent):
         # Create window and layout
-        app = QApplication(sys.argv)
+        if parent is None:
+            app = QApplication(sys.argv)
         self.win = QWidget()
         self.vbox = QVBoxLayout(self.win)
 
         roi_chooser = ROISelector(self.win)
+        rate_chooser = RateSelector(self.win)
         level_chooser = LevelSelector(self.win)
+        lut_chooser = LUTSelector(self.win)
+        config_chooser = CONFIG(self.win)
+        mcf_label = QLabel(self.mcf_filename)
+
         self.vbox.addWidget(roi_chooser)
+        self.vbox.addWidget(rate_chooser)
         self.vbox.addWidget(level_chooser)
-
-
-
-        self.width_box()
-        self.height_box()
-        self.xoffset_box()
-        self.yoffset_box()
-        self.select_roi_button()
-        self.framerate_box()
-        self.exposure_box()
-
-        self.gain_value_slider()
-        self.lut_button()
-        self.lut_file_label()
-        self.load_config_button()
-        self.save_config_button()
-        self.reset_config_button()
-        self.cam_settings_label()
-
-        #widget=QWidget()
-        picture_label_group = QHBoxLayout()
-        picture_group = QHBoxLayout()
-        select_group = QHBoxLayout()
-        fps_group=QHBoxLayout()
-
-        picture_label_group.addWidget(self.widthlbl)
-        picture_label_group.addWidget(self.heightlbl)
-        picture_label_group.addWidget(self.xoffsetlbl)
-        picture_label_group.addWidget(self.yoffsetlbl)
-        picture_group.addWidget(self.width_text)
-        picture_group.addWidget(self.height_text)
-        picture_group.addWidget(self.xoffset_text)
-        picture_group.addWidget(self.yoffset_text)
-        select_group.addWidget(self.select_roi)
-        fps_group.addWidget(self.framerate_text)
-        fps_group.addWidget(self.exposure_text)
-
-        gain_group = QHBoxLayout()
-
-        gain_box = QVBoxLayout()
-        gain_box.addWidget(self.gain_lbl)
-        gain_box.addWidget(self.gain_slider)
-        gain_box.addWidget(self.gain_slider)
-
-
-        lut_box = QHBoxLayout()
-        lut_box.addWidget(self.upload_lut)
-        lut_box.addWidget(self.lut_label)
-
-        cam_settings_file_box = QHBoxLayout()
-        cam_settings_file_box.addWidget(self.load_config)
-        cam_settings_file_box.addWidget(self.save_config)
-        cam_settings_file_box.addWidget(self.reset_config)
-
-        cam_settings_file_box = QHBoxLayout()
-
-        cam_settings_file_box.addWidget(self.cam_settings)
-
-
-        #self.vbox.stretch(1)
-        gain_group.addLayout(gain_box)
-        self.vbox.addLayout(picture_label_group)
-        self.vbox.addLayout(picture_group)
-        self.vbox.addLayout(select_group)
-        self.vbox.addLayout(fps_group)
-        self.vbox.addLayout(gain_group)
-        self.vbox.addLayout(lut_box)
-        self.vbox.addLayout(cam_settings_file_box)
-
-
-        #self.win.setLayout(self.vbox)
-
-
+        self.vbox.addWidget(lut_chooser)
+        self.vbox.addWidget(config_chooser)
+        self.vbox.addWidget(mcf_label)
 
         # Finalise window
         self.win.setWindowTitle('Camera Settings Gui')
-        self.win.setGeometry(300,600,400,600)
+        self.win.setGeometry(10,10,350,400)
         self.win.setLayout(self.vbox)
         self.win.show()
         sys.exit(app.exec_())
-
-    def width_box(self, initial_value=1000):
-        self.widthlbl = QLabel()
-        self.widthlbl.setText('Width')
-        self.width_text = QLineEdit()
-        self.width_text.setText(str(initial_value))
-        self.width_text.textChanged[str].connect(self.width_callback)
-
-    def width_callback(self):
-        pass
-
-    def height_box(self, initial_value=1000):
-        self.heightlbl = QLabel()
-        self.heightlbl.setText('Height')
-        self.height_text = QLineEdit()
-        self.height_text.setText(str(initial_value))
-        self.height_text.textChanged[str].connect(self.height_callback)
-
-    def height_callback(self):
-        pass
-
-    def xoffset_box(self, initial_value=1000):
-        self.xoffsetlbl = QLabel()
-        self.xoffsetlbl.setText('Xoffset')
-        self.xoffset_text = QLineEdit()
-        self.xoffset_text.setText(str(initial_value))
-        self.xoffset_text.textChanged[str].connect(self.xoffset_callback)
-
-    def xoffset_callback(self):
-        pass
-
-    def yoffset_box(self, initial_value=1000):
-        self.yoffsetlbl = QLabel()
-        self.yoffsetlbl.setText('Yoffset')
-        self.yoffset_text = QLineEdit()
-        self.yoffset_text.setText(str(initial_value))
-        self.yoffset_text.textChanged[str].connect(self.yoffset_callback)
-
-    def yoffset_callback(self):
-        pass
-
-
-    def select_roi_button(self):
-        self.select_roi = QPushButton("Select ROI")
-
-    def framerate_box(self, initial_value=1000):
-        self.frameratelbl = QLabel()
-        self.frameratelbl.setText('Framerate')
-        self.framerate_text = QLineEdit()
-        self.framerate_text.setText(str(initial_value))
-        self.framerate_text.textChanged[str].connect(self.framerate_callback)
-
-    def framerate_callback(self):
-        pass
-
-    def exposure_box(self, initial_value=1000):
-        self.exposurelbl = QLabel()
-        self.exposurelbl.setText('texp (s)')
-        self.exposure_text = QLineEdit()
-        self.exposure_text.setText(str(initial_value))
-        self.exposure_text.textChanged[str].connect(self.exposure_callback)
-
-    def exposure_callback(self):
-        pass
-
-
-    def gain_value_slider(self, initial_value=1):
-        self.gain_lbl = QLabel()
-        self.gain_lbl.setText('Gain : '  + str(initial_value))
-        self.gain_slider = QSlider(Qt.Horizontal)
-        self.gain_slider.setRange(1, 5)
-        self.gain_slider.setTickInterval(1)
-        self.gain_slider.setTickPosition(QSlider.TicksBelow)
-        self.gain_slider.setValue(initial_value)
-        self.gain_slider.valueChanged.connect(self._gain_callback)
-
-    def _gain_callback(self):
-        gain_val = self.gain_slider.value()
-        self.gain_lbl.setText('Gain : ' + str(gain_val))
-
-
-
-
-    def lut_button(self):
-        widget = QWidget()
-        self.upload_lut = QPushButton("Update LUT")
-        self.upload_lut.clicked.connect(self.lut_callback)
-
-    def lut_callback(self):
-        pass
-
-    def lut_file_label(self, label="lut _ test"):
-        #widget = QWidget()
-        self.lut_label = QLabel(label)
-
-    def load_config_button(self):
-        # Add Save Button
-        #widget = QWidget()
-        self.load_config = QPushButton("Load Config")
-        self.load_config.clicked.connect(self.load_config_callback)
-
-
-    def load_config_callback(self):
-        pass
-
-    def save_config_button(self):
-        # Add Save Button
-        widget = QWidget()
-        self.save_config = QPushButton("Save Config")
-        self.save_config.clicked.connect(self.save_config_callback)
-
-
-    def save_config_callback(self):
-        pass
-
-    def reset_config_button(self):
-        widget = QWidget()
-        self.reset_config = QPushButton("Reset Config")
-        self.reset_config.clicked.connect(self.reset_config_callback)
-
-
-    def reset_config_callback(self):
-        pass
-
-    def cam_settings_label(self, label='mcf test'):
-        widget = QWidget()
-        self.cam_settings = QLabel(label)
-
-    def add_edit_text(self):
-        self.lbl = QLabel(self)
-        qle = QLineEdit(self)
-        qle.textChanged[str].connect(self.onChanged)
 
 
 class LevelSelector(QWidget):
@@ -413,8 +219,6 @@ class LevelSelector(QWidget):
 
     def fpn_callback(self, state):
         self.fpnval = bool(self.fpn_cb.checkState())
-
-
 
     def black_level_val(self, blackval):
         if self.black_level.check:
@@ -449,11 +253,15 @@ class ROISelector(QWidget):
         self.height_box = LblEdit(parent, "Height", 1024, self.height_callback)
         self.xoffset_box = LblEdit(parent, "Xoffset", 0, self.xoffset_callback)
         self.yoffset_box = LblEdit(parent, "Yoffset", 0, self.yoffset_callback)
+        self.roi_button = QPushButton("Select ROI")
+        self.roi_button.setCheckable(True)
+        self.roi_button.clicked[bool].connect(self.roi_callback)
 
         self.layout().addWidget(self.width_box)
         self.layout().addWidget(self.height_box)
         self.layout().addWidget(self.xoffset_box)
         self.layout().addWidget(self.yoffset_box)
+        self.layout().addWidget(self.roi_button)
 
     def width_callback(self):
         pass
@@ -467,6 +275,83 @@ class ROISelector(QWidget):
     def xoffset_callback(self):
         pass
 
+    def roi_callback(self):
+        pass
+
+class RateSelector(QWidget):
+    def __init__(self, parent):
+        self.fps = 100
+        self.exp = 100
+        self.buffer = 1000
+        self.afttrigger = 100
+        QWidget.__init__(self, parent)
+        vbox = QVBoxLayout(parent)
+        hbox1 = QHBoxLayout()
+        hbox2 = QHBoxLayout()
+        self.framerate = LblEdit(parent, "Frame Rate (Hz)", str(self.fps), self.framerate_callback)
+        self.exposure = LblEdit(parent, "Exposure (us)", str(self.exp), self.exposure_callback)
+        self.buffersize = LblEdit(parent, "Num Frames Buffer", str(self.buffer), self.buffer_callback)
+        self.aftertrigger = LblEdit(parent, "Num Frames After Trigger", str(self.afttrigger), self.aftertrigger_callback)
+        hbox1.addWidget(self.framerate)
+        hbox1.addWidget(self.exposure)
+        hbox2.addWidget(self.buffersize)
+        hbox2.addWidget(self.aftertrigger)
+        vbox.addLayout(hbox1)
+        vbox.addLayout(hbox2)
+        self.setLayout(vbox)
+
+    def framerate_callback(self):
+        pass
+
+    def exposure_callback(self):
+        pass
+
+    def buffer_callback(self):
+        pass
+
+    def aftertrigger_callback(self):
+        pass
+
+class LUTSelector(QWidget):
+    def __init__(self, parent):
+        self.lut_filename = "Lut File"
+        QWidget.__init__(self, parent)
+        self.setLayout(QHBoxLayout())
+        self.lut_lbl = QLabel(self.lut_filename)
+        self.lut_button = QPushButton("Load LUT")
+
+        self.layout().addWidget(self.lut_button)
+        self.layout().addWidget(self.lut_lbl)
+        self.lut_button.clicked.connect(self.lut_callback)
+
+
+    def lut_callback(self):
+        pass
+
+class CONFIG(QWidget):
+    def __init__(self, parent):
+        self.lut_filename = "Lut File"
+        QWidget.__init__(self, parent)
+        self.setLayout(QHBoxLayout())
+        self.load_config = QPushButton("Load Config")
+        self.load_config.clicked.connect(self.load_callback)
+        self.save_config = QPushButton("Save Config")
+        self.save_config.clicked.connect(self.save_callback)
+        self.reset_config = QPushButton("Reset Config")
+        self.reset_config.clicked.connect(self.reset_callback)
+
+        self.layout().addWidget(self.load_config)
+        self.layout().addWidget(self.save_config)
+        self.layout().addWidget(self.reset_config)
+
+    def load_callback(self):
+        pass
+
+    def save_callback(self):
+        pass
+
+    def reset_callback(self):
+        pass
 
 class CamSettingError(Exception):
     def __init__(self):
