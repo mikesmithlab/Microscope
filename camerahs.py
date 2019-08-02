@@ -132,11 +132,14 @@ class CameraControlGui:
     def init_ui(self):
         # Create window and layout
         app = QApplication(sys.argv)
+
         self.win = QWidget()
         self.vbox = QVBoxLayout(self.win)
 
         self.saveas = SaveAs(self.win)
         self.record = RecordControls(self.win)
+
+
         self.camset = QPushButton("Camera Settings")
         self.camset.clicked.connect(self.camset_callback)
 
@@ -147,13 +150,17 @@ class CameraControlGui:
 
         # Finalise window
         self.win.setWindowTitle('VideoEditGui')
-        self.win.setGeometry(10, 300, 200, 100)
+        self.screen_size = app.primaryScreen().size()
+
+        self.win.setGeometry(int(self.screen_size.width()*7/8), int(self.screen_size.height()*1/4), 200, 100)
+        self.camsettings_pos = (int(self.screen_size.width()*7/8),int(self.screen_size.height()*1/4)+400, 350,400)
         self.win.setLayout(self.vbox)
         self.win.show()
         sys.exit(app.exec_())
 
     def camset_callback(self):
-        self.cam=CameraSettingsGUI()
+        self.camsettings_gui = CameraSettingsGUI(self.camsettings_pos, parent=self.win)
+
 
 class SaveAs(QWidget):
     def __init__(self, parent):
@@ -192,7 +199,7 @@ class RecordControls(QWidget):
     def trigger_callback(self):
         pass
 
-'''
+
 class CameraVidEditGui:
     def __init__(self, cam, num_imgs=2):
         self.num_imgs = num_imgs
@@ -320,7 +327,7 @@ class CameraVidEditGui:
 
 
 
-'''
+
 if __name__ == '__main__':
     #import SiSoPyInterface
 

@@ -154,9 +154,10 @@ class CameraSettings:
         else:
             return output
 
-class CameraSettingsGUI:
+class CameraSettingsGUI(QWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, gui_pos=(1000, 500,350,400), parent=None):
+        self.gui_pos=gui_pos
         self.mcf_filename = "Blah.mcf"
         self.init_ui(parent)
 
@@ -164,8 +165,10 @@ class CameraSettingsGUI:
         # Create window and layout
         if parent is None:
             app = QApplication(sys.argv)
-        self.win = QWidget()
+        self.win = QWidget()#parent
         self.vbox = QVBoxLayout(self.win)
+
+
 
         roi_chooser = ROISelector(self.win)
         rate_chooser = RateSelector(self.win)
@@ -183,10 +186,11 @@ class CameraSettingsGUI:
 
         # Finalise window
         self.win.setWindowTitle('Camera Settings Gui')
-        self.win.setGeometry(10,10,350,400)
+        self.win.setGeometry(self.gui_pos[0],self.gui_pos[1],self.gui_pos[2], self.gui_pos[3])
         self.win.setLayout(self.vbox)
         self.win.show()
-        sys.exit(app.exec_())
+        if parent is None:
+            sys.exit(app.exec_())
 
 
 class LevelSelector(QWidget):
