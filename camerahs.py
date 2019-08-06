@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QApplication,
                              QSlider, QHBoxLayout, QPushButton)
 import qimage2ndarray as qim
 import sys
+import cv2
 
 import SiSoPyInterface as SISO
 
@@ -13,6 +14,7 @@ from Generic.pyqt5_widgets import QtImageViewer
 from Generic.images import hstack
 from microscope.cam_settings import CameraSettings
 from microscope.camerasettings_gui import CameraSettingsGUI
+import time
 
 class Camera:
     def __init__(self, cam_config_dir='/opt/Microscope/ConfigFiles/'):
@@ -32,7 +34,6 @@ class Camera:
                             self.camset.cam_dict['frameformat'][2][3])
 
     def preview(self):
-
         err = SISO.Fg_AcquireEx(self.fg, 0, SISO.GRAB_INFINITE, SISO.ACQ_STANDARD, self.memHandle)
 
         if (err != 0):
@@ -42,33 +43,47 @@ class Camera:
             SISO.Fg_FreeGrabber(self.fg)
             exit(err)
 
-        while True:
-            pic_num = self.collect_img()
+        self.display_timer = DisplayTimer(0.03, self.collect_img, self.resource_cleanup)
+        self.display_timer.start()
+        import time
+        time.sleep(2)
+        cam.snap('/home/ppzmis/Pictures/test')
 
-    def collect_img(self):
+
+
+    def resource_cleanup(self):
+        SISO.Fg_FreeMemEx(self.fg, self.memHandle)
+        SISO.CloseDisplay(self.display)
+        SISO.Fg_FreeGrabber(self.fg)
+
+
+    def collect_img(self):#, fg, memHandle):
         cur_pic_nr = SISO.Fg_getLastPicNumberEx(self.fg, 0, self.memHandle)
+        print(cur_pic_nr)
         #cur_pic_nr = SISO.Fg_getLastPicNumberBlockingEx(self.fg, last_pic_nr + 1, 0, 5, self.memHandle)
 
         win_name_img = "Source Image (SiSo Runtime)"
 
-        if (cur_pic_nr < 0):
-            print('here')
-            #print("Fg_getLastPicNumber", (last_pic_nr + 1), ") failed: ",
-            #      (SISO.Fg_getLastErrorDescription(self.fg)))
-            SISO.Fg_stopAcquire(self.fg, 0)
-            SISO.Fg_FreeMemEx(self.fg, self.memHandle)
-            SISO.CloseDisplay(self.display)
-            SISO.Fg_FreeGrabber(self.fg)
-            exit(cur_pic_nr)
-
-        last_pic_nr = cur_pic_nr
+        #last_pic_nr = cur_pic_nr
 
         # get image pointer
         img_ptr = SISO.Fg_getImagePtrEx(self.fg, cur_pic_nr, 0, self.memHandle)
+        #print(cur_pic_nr)
 
-        # display source image
         SISO.DrawBuffer(self.display, img_ptr, cur_pic_nr, win_name_img)
-        return cur_pic_nr
+        #return cur_pic_nr
+
+    def datetimestr(self):
+        now = time.gmtime()
+        return time.strftime("%Y%m%d_%H%M%S", now)
+
+    def snap(self, filename, ext='.png'):
+        date_time = self.datetimestr()
+        cur_pic_nr = SISO.Fg_getLastPicNumberEx(self.fg, 0, self.memHandle)
+        img_ptr = SISO.Fg_getImagePtrEx(self.fg, cur_pic_nr, 0, self.memHandle)
+        nImg = SISO.getArrayFrom(img_ptr, self.camset.cam_dict['frameformat'][2][3],
+                                 self.camset.cam_dict['frameformat'][2][2])
+        cv2.imwrite(filename+date_time+ext, nImg)
 
 
     def grab(self, numpics=20):
@@ -165,7 +180,33 @@ class Camera:
 
 
 
+from threading import Timer
 
+class DisplayTimer(object):
+    def __init__(self, interval, startfunction, stopfunction):
+        self._timer     = None
+        self.interval   = interval
+        self.startfunction   = startfunction
+        self.stopfunction = stopfunction
+        self.is_running = False
+        self.start()
+
+    def _run(self):
+        self.is_running = False
+        self.start()
+
+
+    def start(self):
+        self.startfunction()
+        if not self.is_running:
+            self._timer = Timer(self.interval, self._run)
+            self._timer.start()
+            self.is_running = True
+
+    def stop(self):
+        self._timer.cancel()
+        self.is_running = False
+        self.stopfunction()
 
 
 if __name__ == '__main__':
@@ -178,6 +219,7 @@ if __name__ == '__main__':
     print(cam.camset.cam_dict)
     cam.initialise()
     cam.preview()
+
     #cam.save()
     #cam.release()
 
