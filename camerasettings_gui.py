@@ -11,25 +11,31 @@ from Generic.pyqt5_widgets import CheckedSlider, CheckBox, Slider, LblEdit
 
 class CameraSettingsGUI(QWidget):
 
-    def __init__(self, gui_pos=(1000, 500,350,400), parent=None):
+    def __init__(self, cam, parent=None):
+
+        gui_pos = (int(1500), int(450), 300, 100)
         self.gui_pos=gui_pos
-        self.mcf_filename = "Blah.mcf"
+        self.cam = cam
+        self.mcf_filename = self.cam.cam_config_dir + 'current.mcf'
         self.init_ui(parent)
 
     def init_ui(self, parent):
         # Create window and layout
+        QWidget.__init__(self, parent)
         if parent is None:
             app = QApplication(sys.argv)
-        self.win = QWidget()#parent
+        self.win = QWidget()
+
+        self.setLayout(QVBoxLayout())
         self.vbox = QVBoxLayout(self.win)
 
+        print(self.cam.camset.cam_dict['gain'])
 
-
-        roi_chooser = ROISelector(self.win)
-        rate_chooser = RateSelector(self.win)
-        level_chooser = LevelSelector(self.win)
-        lut_chooser = LUTSelector(self.win)
-        config_chooser = CONFIG(self.win)
+        roi_chooser = ROISelector(self.win, self.cam.camset)
+        rate_chooser = RateSelector(self.win, self.cam.camset)
+        level_chooser = LevelSelector(self.win, self.cam.camset)
+        lut_chooser = LUTSelector(self.win, self.cam.camset)
+        config_chooser = CONFIG(self.win, self.cam.camset)
         mcf_label = QLabel(self.mcf_filename)
 
         self.vbox.addWidget(roi_chooser)
@@ -50,26 +56,30 @@ class CameraSettingsGUI(QWidget):
 
 class LevelSelector(QWidget):
 
-    def __init__(self, parent):
-        self.gainval = 1
-        self.fpnval = False
-        self.blackval = 0
-        self.doubleval = 0
-        self.tripleval = 0
+    def __init__(self, parent, cam):
+        self.camset=cam
+
+        self.gainval = self.camset.cam_dict['gain'][2]
+        self.fpnval = self.camset.cam_dict['fpn'][2]
+        self.blackval = self.camset.cam_dict['blacklevel'][2]
+        self.doubleval = self.camset.cam_dict['dualslope'][2]
+        self.tripleval = self.camset.cam_dict['tripleslope'][2]
 
 
         QWidget.__init__(self, parent)
         self.setLayout(QVBoxLayout())
 
-        self.gain_level = Slider(parent, "Gain", self.gain_callback, start=1, end=5, dpi=1, initial=1)
+        self.gain_level = Slider(parent, "Gain", self.gain_callback, start=self.camset.cam_dict['gain'][3][0], end=self.camset.cam_dict['gain'][3][1], dpi=1, initial=self.camset.cam_dict['gain'][2])
+        self.black_level = Slider(parent, "black", self.black_level_val, start=self.camset.cam_dict['blacklevel'][3][0],
+                                  end=self.camset.cam_dict['blacklevel'][3][1], dpi=1,
+                                  initial=self.camset.cam_dict['blacklevel'][2])
         self.fpn_cb = CheckBox(parent, "FPN", self.fpn_callback)
-        self.black_level = CheckedSlider(parent,"black", self.black_level_val, start=0, end=100, dpi=1.0, initial=self.blackval)
-        self.double_level = CheckedSlider(parent,"double", self.double_level_val, start=0, end=100, dpi=1.0, initial=self.doubleval)
-        self.triple_level = CheckedSlider(parent,"triple", self.triple_level_val, start=0, end=100, dpi=1.0, initial=self.tripleval)
+        self.double_level = CheckedSlider(parent,"double", self.double_level_val, start=self.camset.cam_dict['dualslopetime'][3][0], end=self.camset.cam_dict['dualslopetime'][3][1], dpi=1, initial=self.camset.cam_dict['dualslopetime'][2])
+        self.triple_level = CheckedSlider(parent,"triple", self.triple_level_val, start=self.camset.cam_dict['tripleslopetime'][3][0], end=self.camset.cam_dict['tripleslopetime'][3][1], dpi=1, initial=self.camset.cam_dict['tripleslopetime'][2])
 
         self.layout().addWidget(self.gain_level)
-        self.layout().addWidget(self.fpn_cb)
         self.layout().addWidget(self.black_level)
+        self.layout().addWidget(self.fpn_cb)
         self.layout().addWidget(self.double_level)
         self.layout().addWidget(self.triple_level)
 
@@ -79,39 +89,35 @@ class LevelSelector(QWidget):
     def fpn_callback(self, state):
         self.fpnval = bool(self.fpn_cb.checkState())
 
+
     def black_level_val(self, blackval):
-        if self.black_level.check:
-            self.blackval = blackval
-        else:
-            self.blackval = 0
-            self.black_level.slider.setSliderPosition(0)
+        self.blackval = blackval
 
     def double_level_val(self, doubleval):
         if self.double_level.check:
             self.doubleval = doubleval
-        else:
-            self.doubleval = 0
-            self.double_level.slider.setSliderPosition(0)
+
 
     def triple_level_val(self, tripleval):
         if self.triple_level.check:
             self.tripleval = tripleval
         else:
             self.tripleval = 0
-            self.triple_led.slider.setSliderPosition(0)
+            self.triple_level.slider.setSliderPosition(0)
 
 
     def change_led_settings(self, colour, value):
         pass
 
 class ROISelector(QWidget):
-    def __init__(self, parent):
+    def __init__(self, parent, cam):
         QWidget.__init__(self, parent)
+        self.camset = cam
         self.setLayout(QHBoxLayout())
-        self.width_box = LblEdit(parent, "Width", 1024, self.width_callback)
-        self.height_box = LblEdit(parent, "Height", 1024, self.height_callback)
-        self.xoffset_box = LblEdit(parent, "Xoffset", 0, self.xoffset_callback)
-        self.yoffset_box = LblEdit(parent, "Yoffset", 0, self.yoffset_callback)
+        self.width_box = LblEdit(parent, "Width", self.camset.cam_dict['frameformat'][2][2], self.width_callback)
+        self.height_box = LblEdit(parent, "Height", self.camset.cam_dict['frameformat'][2][3], self.height_callback)
+        self.xoffset_box = LblEdit(parent, "Xoffset", self.camset.cam_dict['frameformat'][2][0], self.xoffset_callback)
+        self.yoffset_box = LblEdit(parent, "Yoffset", self.camset.cam_dict['frameformat'][2][1], self.yoffset_callback)
         self.roi_button = QPushButton("Select ROI")
         self.roi_button.setCheckable(True)
         self.roi_button.clicked[bool].connect(self.roi_callback)
@@ -138,11 +144,12 @@ class ROISelector(QWidget):
         pass
 
 class RateSelector(QWidget):
-    def __init__(self, parent):
-        self.fps = 100
-        self.exp = 100
-        self.buffer = 1000
-        self.afttrigger = 100
+    def __init__(self, parent, cam):
+        self.camset=cam
+        self.fps = self.camset.cam_dict['framerate'][2]
+        self.exp = self.camset.cam_dict['exptime'][2]
+        self.buffer = self.camset.cam_dict['numpicsbuffer'][2]
+        self.afttrigger = self.camset.cam_dict['picsaftertrigger'][2]
         QWidget.__init__(self, parent)
         vbox = QVBoxLayout(parent)
         hbox1 = QHBoxLayout()
@@ -172,8 +179,9 @@ class RateSelector(QWidget):
         pass
 
 class LUTSelector(QWidget):
-    def __init__(self, parent):
-        self.lut_filename = "Lut File"
+    def __init__(self, parent, cam):
+        self.camset=cam
+        self.lut_filename = self.camset.cam_dict['lutfilename'][2]
         QWidget.__init__(self, parent)
         self.setLayout(QHBoxLayout())
         self.lut_lbl = QLabel(self.lut_filename)
@@ -188,7 +196,9 @@ class LUTSelector(QWidget):
         pass
 
 class CONFIG(QWidget):
-    def __init__(self, parent):
+    def __init__(self, parent, cam):
+        self.camset=cam
+        self.parent=parent
         self.lut_filename = "Lut File"
         QWidget.__init__(self, parent)
         self.setLayout(QHBoxLayout())
@@ -204,13 +214,13 @@ class CONFIG(QWidget):
         self.layout().addWidget(self.reset_config)
 
     def load_callback(self):
-        pass
+        self.camset.load_config(parent=self.parent)
 
     def save_callback(self):
-        pass
+        self.camset.save_config(parent=self.parent)
 
     def reset_callback(self):
-        pass
+        self.camset.reset_default_config()
 
 if __name__ == '__main__':
     camsettings = CameraSettingsGUI()

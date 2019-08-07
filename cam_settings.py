@@ -2,6 +2,7 @@ import subprocess
 from shutil import copyfile
 import SiSoPyInterface as SISO
 import numpy as np
+import time
 import sys
 
 from PyQt5.QtCore import Qt
@@ -77,19 +78,21 @@ class CameraSettings:
         self.lut_script = cam_config_dir + 'upload_lut'
         self.load_config()
 
-    def load_config(self, filename=None):
+    def load_config(self, filename=None, parent=None):
         if filename is None:
-            filename = load_filename(directory=self.cam_config_dir, file_filter='*.ccf')
+            filename = load_filename(directory=self.cam_config_dir, file_filter='*.ccf',parent=parent)
         self.cam_dict = load_dict_from_file(filename)
         self._load_cam_config()
         SISO.Fg_loadConfig(self.fg, filename[:-3]+'mcf')
-        #self._check_new_max_vals()
+        self._check_new_max_vals()
+        print('new config loaded')
 
-    def save_config(self, filename=None):
+    def save_config(self, filename=None, parent=None):
         if filename is None:
-            filename = save_filename(directory=self.cam_config_dir, file_filter='*.ccf')
+            filename = save_filename(directory=self.cam_config_dir, file_filter='*.ccf', parent=parent)
         save_dict_to_file(filename, self.cam_dict)
-        self.fg_saveConfig(filename[:-3]+'mcf')
+        SISO.Fg_saveConfig(self.fg, filename[:-3]+'mcf')
+        print('config saved')
 
     def _load_cam_config(self):
         self._write_cam_command_file()
@@ -98,8 +101,9 @@ class CameraSettings:
     def reset_default_config(self):
         copyfile(self.cam_config_dir + 'default_backup.ccf', self.cam_current_ccf)
         copyfile(self.cam_config_dir + 'default_backup.mcf', self.fg_current_mcf)
-        self._load_cam_config(self.cam_current_ccf)
+        self._load_cam_config()
         SISO.Fg_loadConfig(self.fg, self.cam_config_dir + 'current.mcf')
+
 
     def load_lut(self, filename=None):
         if filename is None:
