@@ -1,12 +1,13 @@
 
 
 import sys
-
+import SiSoPyInterface as SISO
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QApplication,
                              QSlider, QHBoxLayout, QPushButton, QLineEdit, QCheckBox)
 from Generic.pyqt5_widgets import CheckedSlider, CheckBox, Slider, LblEdit
+import time
 
 
 class CameraSettingsGUI(QWidget):
@@ -69,7 +70,7 @@ class LevelSelector(QWidget):
         QWidget.__init__(self, parent)
         self.setLayout(QVBoxLayout())
 
-        self.gain_level = Slider(parent, "Gain", self.gain_callback, start=self.camset.cam_dict['gain'][3][0], end=self.camset.cam_dict['gain'][3][1], dpi=1, initial=self.camset.cam_dict['gain'][2])
+        self.gain_level = Slider(parent, "Gain", self.gain_callback, start=self.camset.cam_dict['gain'][3][0], end=self.camset.cam_dict['gain'][3][1], dpi=1, initial=self.camset.cam_dict['gain'][2], update_delay=10)
         self.black_level = Slider(parent, "black", self.black_level_val, start=self.camset.cam_dict['blacklevel'][3][0],
                                   end=self.camset.cam_dict['blacklevel'][3][1], dpi=1,
                                   initial=self.camset.cam_dict['blacklevel'][2])
@@ -84,30 +85,42 @@ class LevelSelector(QWidget):
         self.layout().addWidget(self.triple_level)
 
     def gain_callback(self, gainval):
+        self.camset.write_single_cam_command('gain', int(gainval))
         self.gainval=gainval
 
-    def fpn_callback(self, state):
+    def fpn_callback(self):
         self.fpnval = bool(self.fpn_cb.checkState())
+        if self.fpnval:
+            self.camset.write_single_cam_command('fpn', int(1))
+        else:
+            self.camset.write_single_cam_command('fpn', int(0))
 
 
     def black_level_val(self, blackval):
-        self.blackval = blackval
+        print(blackval)
+        self.camset.write_single_cam_command('blacklevel', int(blackval))
+        self.blackval = int(blackval)
 
     def double_level_val(self, doubleval):
         if self.double_level.check:
+            self.camset.write_single_cam_command('dualslope', int(1))
+            self.camset.write_single_cam_command('dualslopetime', int(doubleval))
             self.doubleval = doubleval
+        else:
+            self.camset.write_single_cam_command('dualslope', int(0))
+            self.camset.write_single_cam_command('dualslopetime', int(doubleval))
+            self.doubleval = int(doubleval)
 
 
     def triple_level_val(self, tripleval):
         if self.triple_level.check:
-            self.tripleval = tripleval
+            self.tripleval = int(tripleval)
+            self.camset.write_single_cam_command('tripleslope', int(1))
+            self.camset.write_single_cam_command('tripleslopetime', int(tripleval))
         else:
-            self.tripleval = 0
-            self.triple_level.slider.setSliderPosition(0)
+            self.camset.write_single_cam_command('tripleslope', int(0))
+            self.camset.write_single_cam_command('tripleslopetime', int(tripleval))
 
-
-    def change_led_settings(self, colour, value):
-        pass
 
 class ROISelector(QWidget):
     def __init__(self, parent, cam):
@@ -223,6 +236,8 @@ class CONFIG(QWidget):
         self.camset.reset_default_config()
 
 if __name__ == '__main__':
+    cam_config_dir = '/opt/Microscope/ConfigFiles/'
+    fg = SISO.Fg_InitConfig(cam_config_dir + 'current.mcf', 0)
     camsettings = CameraSettingsGUI()
 
 

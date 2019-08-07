@@ -68,7 +68,7 @@ class CameraSettings:
 
     '''
 
-    def __init__(self, fg, cam_config_dir):
+    def __init__(self, fg, cam_config_dir='/opt/Microscope/ConfigFiles/'):
         self.fg = fg
         self.cam_config_dir = cam_config_dir
         self.cam_cmds = cam_config_dir + 'cam_cmds'
@@ -128,27 +128,38 @@ class CameraSettings:
             fout.writelines('##quit')
 
     def _check_new_max_vals(self):
-        output = self.write_single_cam_command('#A')
+        output = self.write_single_cam_command('maxframerate')
         self.cam_dict['framerate'][3][1] = str(int(output[0][1:-1]))
-        output = self.write_single_cam_command('#a')
+        output = self.write_single_cam_command('maxexptime')
         self.cam_dict['exptime'][3][1] = str(int(output[0][1:-1]))
 
     def write_single_cam_command(self, command, value=None):
+        print(self.cam_dict[command])
         with open(self.cam_cmds, "w") as fout:
             fout.writelines('#N\n')
             if value is None:
-                fout.writelines(command + '\n')
+                print(self.cam_dict[command])
+                fout.writelines(self.cam_dict[command][0] + '\n')
             else:
-                fout.writelines(command + '(' + str(value) + ')\n')
+                fout.writelines(self.cam_dict[command][0] + '(' + str(value) + ')\n')
             fout.writelines('##quit')
         output = self._upload_cam_commands()
-        return output
+        if output is not False and value is not None:
+            self.cam_dict[command][2] = value
+            print('Value uploaded')
+            return True
+        elif output is not False and value is None:
+            return output
+        else:
+            print('value not allowed')
+            return False
 
-    def write_single_fg_command(self, parameter, value):
+    def write_single_fg_command(self, command, value):
         '''
         SDK Docs http://www.siliconsoftware.de/download/live_docu/RT5/en/documents/SDK/SDK.html#_2.3.1
         2.4.1 lists all parameters and values.
         '''
+        parameter=self.cam_dict[command][1]
         SISO.Fg_SetParameter(self.fg, parameter, value, 0)
 
     def _upload_cam_commands(self):
@@ -156,9 +167,11 @@ class CameraSettings:
         output = p.communicate()[0].split(b'\r\n')[1:-1]
 
         if b'>\x15' in output:
-            raise CamSettingError(output)
+            return False
         else:
             return output
+
+
 
 class CamSettingError(Exception):
     def __init__(self):
@@ -172,7 +185,9 @@ class CamSettingError(Exception):
 if __name__ == '__main__':
     #filename = save_filename(directory='/opt/Microscope/ConfigFiles/', file_filter='*.lut')
     # save_dict_to_file(filename, cam_dict)
+    cam_config_dir = '/opt/Microscope/ConfigFiles/'
+    fg = SISO.Fg_InitConfig(cam_config_dir + 'current.mcf', 0)
+    camset = CameraSettings(fg)
+    camset.write_single_cam_command('framerate', 100)
 
 
-
-    lut_file(np.floor(np.linspace(0, 255, 1024)))
