@@ -28,6 +28,7 @@ class Camera:
         self.autosave=False
 
     def initialise(self):
+        print(1)
         self.fg = SISO.Fg_InitConfig(self.cam_config_dir + 'current.mcf', 0)
         totalBufferSize = self.camset.cam_dict['frameformat'][2][2] * self.camset.cam_dict['frameformat'][2][3] * self.camset.cam_dict['numpicsbuffer'][2]
         self.memHandle = SISO.Fg_AllocMemEx(self.fg, totalBufferSize, self.camset.cam_dict['numpicsbuffer'][2])
@@ -35,8 +36,10 @@ class Camera:
                                           self.camset.cam_dict['frameformat'][2][3])
         SISO.SetBufferWidth(self.display, self.camset.cam_dict['frameformat'][2][2],
                             self.camset.cam_dict['frameformat'][2][3])
+        print(2)
 
     def grab(self, numpics=0):
+        print(3)
         if numpics == 0:
             self.numpics = SISO.GRAB_INFINITE
         else:
@@ -50,6 +53,15 @@ class Camera:
 
         self.display_timer = DisplayTimer(0.03, self.display_img)
         self.display_timer.start()
+        print(4)
+        if self.numpics != SISO.GRAB_INFINITE:
+            while self.display_timer.is_running:
+                time.sleep(0.1)
+            #self.stop()
+            if self.autosave:
+                print(5)
+                self.save_vid(1, self.numpics)
+                self.resource_cleanup()
 
     def trigger(self):
         picsaftertrigger = self.camset.cam_dict['picsaftertrigger'][2]
@@ -91,11 +103,18 @@ class Camera:
         return time.strftime("%Y%m%d_%H%M%S", now)
 
     def save_vid(self, startframe, stopframe, ext='.mp4'):
+        if startframe == 0:
+            print('Frame numbers start from 1 setting startframe to 1')
+            startframe = 1
         date_time = self.datetimestr()
-        writevid = WriteVideo(filename=self.filename_base+date_time+ext, frame_size=(
+        print(self.filename_base)
+        print(date_time)
+        print(6)
+        print(ext)
+        writevid = WriteVideo(filename=self.filename_base+str(date_time)+ext, frame_size=(
                                 self.camset.cam_dict['frameformat'][2][2], self.camset.cam_dict['frameformat'][2][3]))
         for frame in range(startframe, stopframe, 1):
-            img_ptr = SISO.Fg_getImagePtrEx(self.fg, frame, 0, self.memHandle)
+            img_ptr = SISO.Fg_getImagePtrEx(self.fg, int(frame), 0, self.memHandle)
             nImg = SISO.getArrayFrom(img_ptr, self.camset.cam_dict['frameformat'][2][3],
                                  self.camset.cam_dict['frameformat'][2][2])
             writevid.add_frame(nImg)
@@ -114,6 +133,7 @@ class Camera:
         SISO.Fg_FreeMemEx(self.fg, self.memHandle)
         SISO.CloseDisplay(self.display)
         SISO.Fg_FreeGrabber(self.fg)
+        print('Resources released')
 
 
 
@@ -153,4 +173,8 @@ class DisplayTimer(object):
 
 
 if __name__ == '__main__':
-    cam=Camera()
+    cam=Camera(filename='/home/ppzmis/Videos/test.mp4')
+    cam.initialise()
+    cam.set_autosave(True)
+
+    cam.grab(numpics=100)

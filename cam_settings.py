@@ -134,11 +134,9 @@ class CameraSettings:
         self.cam_dict['exptime'][3][1] = str(int(output[0][1:-1]))
 
     def write_single_cam_command(self, command, value=None):
-        print(self.cam_dict[command])
         with open(self.cam_cmds, "w") as fout:
             fout.writelines('#N\n')
             if value is None:
-                print(self.cam_dict[command])
                 fout.writelines(self.cam_dict[command][0] + '\n')
             else:
                 fout.writelines(self.cam_dict[command][0] + '(' + str(value) + ')\n')
