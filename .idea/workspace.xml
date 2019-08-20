@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="518c975d-cdb9-4f49-8985-c867236d5614" name="Default Changelist" comment="Set out beginnings of microrheology class">
-      <change afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
+    <list default="true" id="518c975d-cdb9-4f49-8985-c867236d5614" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/microscope.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/microscope.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/microrheology.py" beforeDir="false" afterPath="$PROJECT_DIR$/microrheology.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cam_settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/cam_settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/camerahs.py" beforeDir="false" afterPath="$PROJECT_DIR$/camerahs.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -25,13 +28,12 @@
         <option value="Mike Smith" />
       </list>
     </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="293" />
-    <option name="y" value="53" />
-    <option name="width" value="1400" />
-    <option name="height" value="1000" />
   </component>
   <component name="ProjectId" id="1OeA8PhaqZaO4dgBqoGUIYpbXLD" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -39,16 +41,10 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="Python" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../ParticleTracking" />
-    <property name="node.js.detected.package.eslint" value="true" />
-    <property name="node.js.detected.package.tslint" value="true" />
-    <property name="node.js.path.for.package.eslint" value="project" />
-    <property name="node.js.path.for.package.tslint" value="project" />
-    <property name="node.js.selected.package.eslint" value="(autodetect)" />
-    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="settings.editor.selected.configurable" value="PyScientificConfigurable" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -71,7 +67,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.microrheology">
+  <component name="RunManager" selected="Python.camera_gui">
     <configuration name="cam_settings" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="microscope" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -86,6 +82,28 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cam_settings.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="camera_gui" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="microscope" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/camera_gui.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -116,7 +134,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="dmd2" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="microscope" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -129,7 +147,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/dmd2.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -138,7 +156,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="microrheology" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="timed_camera_collect" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="microscope" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -151,29 +169,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/microrheology.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="pyqt5_widgets" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="microscope" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../Generic" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../Generic/pyqt5_widgets.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/timed_camera_collect.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -184,11 +180,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.microrheology" />
+        <item itemvalue="Python.camera_gui" />
+        <item itemvalue="Python.timed_camera_collect" />
+        <item itemvalue="Python.test" />
         <item itemvalue="Python.camerahs" />
-        <item itemvalue="Python.pyqt5_widgets" />
         <item itemvalue="Python.cam_settings" />
-        <item itemvalue="Python.dmd2" />
       </list>
     </recent_temporary>
   </component>
@@ -221,12 +217,23 @@
       <workItem from="1564327535603" duration="6391000" />
       <workItem from="1564415351230" duration="9000" />
       <workItem from="1564415406759" duration="1369000" />
-      <workItem from="1564416790528" duration="4443000" />
-      <workItem from="1564506754466" duration="1366000" />
-      <workItem from="1564528269514" duration="4607000" />
-      <workItem from="1567093877264" duration="599000" />
-      <workItem from="1567501876305" duration="391000" />
-      <workItem from="1567502354940" duration="3005000" />
+      <workItem from="1564416790528" duration="4570000" />
+      <workItem from="1564760114339" duration="2413000" />
+      <workItem from="1565018865583" duration="1296000" />
+      <workItem from="1565020224923" duration="20828000" />
+      <workItem from="1565185634001" duration="57000" />
+      <workItem from="1565185702357" duration="119000" />
+      <workItem from="1565185832412" duration="100000" />
+      <workItem from="1565185990173" duration="1622000" />
+      <workItem from="1565187631839" duration="6685000" />
+      <workItem from="1565600164433" duration="33000" />
+      <workItem from="1565620315324" duration="4841000" />
+      <workItem from="1566203215363" duration="264000" />
+      <workItem from="1566203519407" duration="234000" />
+      <workItem from="1566203767586" duration="74000" />
+      <workItem from="1566205940393" duration="28000" />
+      <workItem from="1566206039925" duration="1503000" />
+      <workItem from="1566292043716" duration="2400000" />
     </task>
     <task id="LOCAL-00001" summary="Initial Commit">
       <created>1560174717200</created>
@@ -340,21 +347,70 @@
       <option name="project" value="LOCAL" />
       <updated>1564417777960</updated>
     </task>
-    <task id="LOCAL-00017" summary="Camera gui added ROI edit boxes">
-      <created>1564508071870</created>
+    <task id="LOCAL-00017" summary="video editing gui nearly done but save button not working">
+      <created>1564503284297</created>
       <option name="number" value="00017" />
       <option name="presentableId" value="LOCAL-00017" />
       <option name="project" value="LOCAL" />
-      <updated>1564508071870</updated>
+      <updated>1564503284297</updated>
     </task>
-    <task id="LOCAL-00018" summary="Set out beginnings of microrheology class">
-      <created>1567502262601</created>
+    <task id="LOCAL-00018" summary="video editing gui nearly done but save button not working">
+      <created>1564503352152</created>
       <option name="number" value="00018" />
       <option name="presentableId" value="LOCAL-00018" />
       <option name="project" value="LOCAL" />
-      <updated>1567502262601</updated>
+      <updated>1564503352152</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="video editing gui nearly done but save button not working">
+      <created>1564503371391</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1564503371391</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Camera gui and Camera Settings Gui now work with each other">
+      <created>1564762519057</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1564762519057</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Split guis into separate file. Working on Camera functionality to enable previews etc. Need to limit the display rate of camera.">
+      <created>1565022903101</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1565022903102</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Preview now working in background thread&#10;Snap function saves image to file">
+      <created>1565109676762</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1565109676762</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Finised Camera class. Now writes to video, with optional fixed number of frames, delays after trigger etc.&#10;&#10;Also linked commands to gui buttons&#10;&#10;Starting to link camerasettings commands to camerasettings gui. Config section now works.">
+      <created>1565188760179</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1565188760179</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Finised Camera class. Now writes to video, with optional fixed number of frames, delays after trigger etc.&#10;&#10;Also linked commands to gui buttons&#10;&#10;Starting to link camerasettings commands to camerasettings gui. Config section now works.">
+      <created>1565196084380</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1565196084380</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Timed camera movie collection class. Corrected grab numpics video saving">
+      <created>1565626264663</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1565626264664</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -384,9 +440,12 @@
     <MESSAGE value="Minimal working camera classes" />
     <MESSAGE value="Updated camerahs class to include writing to video. Began work on a video editing gui" />
     <MESSAGE value="video editing gui nearly done but save button not working" />
-    <MESSAGE value="Camera gui added ROI edit boxes" />
-    <MESSAGE value="Set out beginnings of microrheology class" />
-    <option name="LAST_COMMIT_MESSAGE" value="Set out beginnings of microrheology class" />
+    <MESSAGE value="Camera gui and Camera Settings Gui now work with each other" />
+    <MESSAGE value="Split guis into separate file. Working on Camera functionality to enable previews etc. Need to limit the display rate of camera." />
+    <MESSAGE value="Preview now working in background thread&#10;Snap function saves image to file" />
+    <MESSAGE value="Finised Camera class. Now writes to video, with optional fixed number of frames, delays after trigger etc.&#10;&#10;Also linked commands to gui buttons&#10;&#10;Starting to link camerasettings commands to camerasettings gui. Config section now works." />
+    <MESSAGE value="Timed camera movie collection class. Corrected grab numpics video saving" />
+    <option name="LAST_COMMIT_MESSAGE" value="Timed camera movie collection class. Corrected grab numpics video saving" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -400,14 +459,17 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/microscope$test.coverage" NAME="test Coverage Results" MODIFIED="1566206335061" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/microscope$FrameGrav.coverage" NAME="FrameGrav Coverage Results" MODIFIED="1562933495934" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.." />
     <SUITE FILE_PATH="coverage/microscope$dmd.coverage" NAME="dmd Coverage Results" MODIFIED="1564327653758" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/microscope$dmd2.coverage" NAME="dmd2 Coverage Results" MODIFIED="1564506761799" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/microscope$camerahs.coverage" NAME="camerahs Coverage Results" MODIFIED="1564533031376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/microscope$timed_camera_collect.coverage" NAME="timed_camera_collect Coverage Results" MODIFIED="1566292058397" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/microscope$camera_gui.coverage" NAME="camera_gui Coverage Results" MODIFIED="1566294275323" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/microscope$dmd2.coverage" NAME="dmd2 Coverage Results" MODIFIED="1564503300218" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/microscope$FrameGrabTest.coverage" NAME="FrameGrabTest Coverage Results" MODIFIED="1562324739291" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.." />
-    <SUITE FILE_PATH="coverage/microscope$microrheology.coverage" NAME="microrheology Coverage Results" MODIFIED="1567505024578" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/microscope$pyqt5_widgets.coverage" NAME="pyqt5_widgets Coverage Results" MODIFIED="1564531300176" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../Generic" />
-    <SUITE FILE_PATH="coverage/microscope$cam_settings.coverage" NAME="cam_settings Coverage Results" MODIFIED="1564528447280" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/microscope$camerahs.coverage" NAME="camerahs Coverage Results" MODIFIED="1566203787721" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/microscope$pyqt5_widgets.coverage" NAME="pyqt5_widgets Coverage Results" MODIFIED="1565194191977" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../Generic" />
+    <SUITE FILE_PATH="coverage/microscope$camerasettings_gui.coverage" NAME="camerasettings_gui Coverage Results" MODIFIED="1565194198179" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/microscope$cam_settings.coverage" NAME="cam_settings Coverage Results" MODIFIED="1566203409553" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateExpression">

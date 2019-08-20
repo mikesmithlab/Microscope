@@ -175,6 +175,6 @@ class DisplayTimer(object):
 if __name__ == '__main__':
     cam=Camera(filename='/home/ppzmis/Videos/test.mp4')
     cam.initialise()
-    cam.set_autosave(True)
+    #cam.set_autosave(True)
 
-    cam.grab(numpics=100)
+    #cam.grab(numpics=100)
