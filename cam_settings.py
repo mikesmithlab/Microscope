@@ -84,7 +84,7 @@ class CameraSettings:
         self.cam_dict = load_dict_from_file(filename)
         self._load_cam_config()
         SISO.Fg_loadConfig(self.fg, filename[:-3]+'mcf')
-        self._check_new_max_vals()
+        #self._check_new_max_vals()
         print('new config loaded')
 
     def save_config(self, filename=None, parent=None):
