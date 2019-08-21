@@ -134,12 +134,17 @@ class CameraSettings:
         self.cam_dict['exptime'][3][1] = str(int(output[0][1:-1]))
 
     def write_single_cam_command(self, command, value=None):
+        print(command)
+        print(value)
         with open(self.cam_cmds, "w") as fout:
             fout.writelines('#N\n')
             if value is None:
                 fout.writelines(self.cam_dict[command][0] + '\n')
             else:
-                fout.writelines(self.cam_dict[command][0] + '(' + str(value) + ')\n')
+                if type(value) == list:
+                    fout.writelines(self.cam_dict[command][0] + '(' + str(value)[1:-1].replace(" ","") + ')\n')
+                else:
+                    fout.writelines(self.cam_dict[command][0] + '(' + str(value) + ')\n')
             fout.writelines('##quit')
         output = self._upload_cam_commands()
         if output is not False and value is not None:
@@ -159,6 +164,15 @@ class CameraSettings:
         '''
         parameter=self.cam_dict[command][1]
         SISO.Fg_SetParameter(self.fg, parameter, value, 0)
+
+    def write_single_fg_command_frame(self, parameter, value):
+        '''
+        SDK Docs http://www.siliconsoftware.de/download/live_docu/RT5/en/documents/SDK/SDK.html#_2.3.1
+        2.4.1 lists all parameters and values.
+        '''
+
+        SISO.Fg_setParameterWithInt(self.fg, SISO.parameter, value, 0)
+
 
     def _upload_cam_commands(self):
         p = subprocess.Popen([self.cam_shell_script], stdout=subprocess.PIPE)

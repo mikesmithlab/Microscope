@@ -141,20 +141,34 @@ class ROISelector(QWidget):
         self.layout().addWidget(self.yoffset_box)
         self.layout().addWidget(self.roi_button)
 
-    def width_callback(self):
+    def width_callback(self,wid):
+        self.frameform_input(wid,2)
         pass
 
-    def height_callback(self):
+    def height_callback(self,hei):
+        self.frameform_input(hei, 3)
         pass
 
-    def yoffset_callback(self):
+    def yoffset_callback(self,yoff):
+        self.frameform_input(yoff,1)
         pass
 
-    def xoffset_callback(self):
+    def xoffset_callback(self,xoff):
+        self.frameform_input(xoff, 0)
         pass
 
     def roi_callback(self):
         pass
+
+    def frameform_input(self,val,ind):
+        frameform = self.camset.cam_dict['frameformat'][2].copy()
+        frameform[ind] = val
+        if self.camset.write_single_cam_command('frameformat', frameform):
+            self.camset.write_single_fg_command_frame(self.camset.cam_dict['frameformat'][1][ind],val)
+        self.width_box.edit.setText(str(self.camset.cam_dict['frameformat'][2][2]))
+        self.height_box.edit.setText(str(self.camset.cam_dict['frameformat'][2][3]))
+        self.xoffset_box.edit.setText(str(self.camset.cam_dict['frameformat'][2][0]))
+        self.yoffset_box.edit.setText(str(self.camset.cam_dict['frameformat'][2][1]))
 
 class RateSelector(QWidget):
     def __init__(self, parent, cam):
@@ -179,16 +193,21 @@ class RateSelector(QWidget):
         vbox.addLayout(hbox2)
         self.setLayout(vbox)
 
-    def framerate_callback(self):
+    def framerate_callback(self,framerate):
+        self.camset.write_single_cam_command('framerate', framerate)
+        self.framerate.edit.setText(str(self.camset.cam_dict['framerate'][2]))
         pass
 
-    def exposure_callback(self):
+    def exposure_callback(self,exposure):
+
         pass
 
-    def buffer_callback(self):
+    def buffer_callback(self,buffer):
+
         pass
 
-    def aftertrigger_callback(self):
+    def aftertrigger_callback(self,aftrig):
+
         pass
 
 class LUTSelector(QWidget):
