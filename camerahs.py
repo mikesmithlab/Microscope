@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QApplication,
                              QSlider, QHBoxLayout, QPushButton)
 import qimage2ndarray as qim
 import sys
+import os
 import cv2
 
 import SiSoPyInterface as SISO
@@ -29,7 +30,6 @@ class Camera:
 
     def initialise(self):
         print(1)
-        self.fg = SISO.Fg_InitConfig(self.cam_config_dir + 'current.mcf', 0)
         totalBufferSize = self.camset.cam_dict['frameformat'][2][2] * self.camset.cam_dict['frameformat'][2][3] * self.camset.cam_dict['numpicsbuffer'][2]
         self.memHandle = SISO.Fg_AllocMemEx(self.fg, totalBufferSize, self.camset.cam_dict['numpicsbuffer'][2])
         self.display = SISO.CreateDisplay(8, self.camset.cam_dict['frameformat'][2][2],
@@ -81,6 +81,14 @@ class Camera:
                                  self.camset.cam_dict['frameformat'][2][2])
         cv2.imwrite(self.filename_base+date_time+ext, nImg)
 
+    def snap_max_array(self):
+        cur_pic_nr = SISO.Fg_getLastPicNumberEx(self.fg, 0, self.memHandle)
+        img_ptr = SISO.Fg_getImagePtrEx(self.fg, cur_pic_nr, 0, self.memHandle)
+        nImg = SISO.getArrayFrom(img_ptr, self.camset.cam_dict['frameformat'][3][0][1],
+                                 self.camset.cam_dict['frameformat'][3][1][1])
+        return nImg
+
+
     def display_img(self):
         cur_pic_nr = SISO.Fg_getLastPicNumberEx(self.fg, 0, self.memHandle)
         if cur_pic_nr == self.numpics:
@@ -107,10 +115,6 @@ class Camera:
             print('Frame numbers start from 1 setting startframe to 1')
             startframe = 1
         date_time = self.datetimestr()
-        print(self.filename_base)
-        print(date_time)
-        print(6)
-        print(ext)
         writevid = WriteVideo(filename=self.filename_base+str(date_time)+ext, frame_size=(
                                 self.camset.cam_dict['frameformat'][2][2], self.camset.cam_dict['frameformat'][2][3]))
         for frame in range(startframe, stopframe, 1):
@@ -130,15 +134,21 @@ class Camera:
                 self.filename_base = filename.split('.')[0]
 
     def resource_cleanup(self):
-        SISO.Fg_FreeMemEx(self.fg, self.memHandle)
+        #SISO.Fg_FreeMemEx(self.fg, self.memHandle)
         SISO.CloseDisplay(self.display)
-        SISO.Fg_FreeGrabber(self.fg)
+        #SISO.Fg_FreeGrabber(self.fg)
         print('Resources released')
 
 
+    def close_display(self):
+        SISO.CloseDisplay(self.display)
+        #os.system('wmctrl -c "microDisplay"')
 
 
-
+    def reset_display(self):
+        self.stop()
+        self.display_timer.stop()
+        time.sleep(0.1)
 
 
 
@@ -169,6 +179,7 @@ class DisplayTimer(object):
     def stop(self):
         self._timer.cancel()
         self.is_running = False
+
 
 
 

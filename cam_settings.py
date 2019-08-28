@@ -1,6 +1,7 @@
 import subprocess
 from shutil import copyfile
 import SiSoPyInterface as SISO
+from SiSoPyInterface import FG_XOFFSET, FG_YOFFSET, FG_HEIGHT, FG_WIDTH,FG_FRAMESPERSEC,FG_EXPOSURE
 import numpy as np
 import time
 import sys
@@ -23,7 +24,7 @@ The dictionary values are (cam command, framegrabber command if appropriate)
 
 cam_dict = {'gain':             ['#G', None,0, [0, 1]],
             'fpn' :             ['#F', None, 1, [0, 1]],
-            'frameformat':      ['#R', ['FG_XOFFSET', 'FG_YOFFSET', 'FG_HEIGHT', 'FG_WIDTH'], [0, 0, 1280, 1024], [[0, 1280], [0, 1024], [200, 1280], [1, 1024]]],
+            'frameformat':      ['#R', ['FG_XOFFSET', 'FG_YOFFSET', 'FG_WIDTH', 'FG_HEIGHT'], [0, 0, 1280, 1024], [[0, 1280],[0, 1024], [1, 1280], [1, 1024]]],
             'framerate':        ['#r', 'FG_FRAMESPERSEC', 400, [20, None]],
             'exptime':          ['#e', 'FG_EXPOSURE', 1000, [1, None]],
             'dualslope':        ['#D', None, 0, [0, 1]],
@@ -134,8 +135,8 @@ class CameraSettings:
         self.cam_dict['exptime'][3][1] = str(int(output[0][1:-1]))
 
     def write_single_cam_command(self, command, value=None):
-        print(command)
-        print(value)
+        print(str(value)[1:-1].replace(" ",""))
+
         with open(self.cam_cmds, "w") as fout:
             fout.writelines('#N\n')
             if value is None:
@@ -147,6 +148,7 @@ class CameraSettings:
                     fout.writelines(self.cam_dict[command][0] + '(' + str(value) + ')\n')
             fout.writelines('##quit')
         output = self._upload_cam_commands()
+        print(output)
         if output is not False and value is not None:
             self.cam_dict[command][2] = value
             print('Value uploaded')
@@ -157,27 +159,23 @@ class CameraSettings:
             print('value not allowed')
             return False
 
-    def write_single_fg_command(self, command, value):
+    def write_single_fg_command(self, command, value , paramnum = None):
         '''
         SDK Docs http://www.siliconsoftware.de/download/live_docu/RT5/en/documents/SDK/SDK.html#_2.3.1
         2.4.1 lists all parameters and values.
         '''
-        parameter=self.cam_dict[command][1]
-        SISO.Fg_SetParameter(self.fg, parameter, value, 0)
-
-    def write_single_fg_command_frame(self, parameter, value):
-        '''
-        SDK Docs http://www.siliconsoftware.de/download/live_docu/RT5/en/documents/SDK/SDK.html#_2.3.1
-        2.4.1 lists all parameters and values.
-        '''
-
-        SISO.Fg_setParameterWithInt(self.fg, SISO.parameter, value, 0)
+        if paramnum is None:
+            parameter=self.cam_dict[command][1]
+        else:
+            parameter = self.cam_dict[command][1][paramnum]
+        param = globals()[parameter]
+        SISO.Fg_setParameterWithInt(self.fg, param, value, 0)
 
 
     def _upload_cam_commands(self):
         p = subprocess.Popen([self.cam_shell_script], stdout=subprocess.PIPE)
         output = p.communicate()[0].split(b'\r\n')[1:-1]
-
+        print(output)
         if b'>\x15' in output:
             return False
         else:

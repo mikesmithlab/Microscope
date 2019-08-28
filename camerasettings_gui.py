@@ -1,16 +1,17 @@
 
-
+import numpy as np
 import sys
 import SiSoPyInterface as SISO
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QApplication,
+from microscope.ROIfigure import ROIfigure
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QApplication, QDialog,
                              QSlider, QHBoxLayout, QPushButton, QLineEdit, QCheckBox)
-from Generic.pyqt5_widgets import CheckedSlider, CheckBox, Slider, LblEdit
+from Generic.pyqt5_widgets import CheckedSlider, CheckBox, Slider, LblEdit, MatplotlibFigure
 import time
 
 
-class CameraSettingsGUI(QWidget):
+class CameraSettingsGUI(QDialog):
 
     def __init__(self, cam, parent=None):
 
@@ -20,23 +21,57 @@ class CameraSettingsGUI(QWidget):
         self.mcf_filename = self.cam.cam_config_dir + 'current.mcf'
         self.init_ui(parent)
 
+    # def init_ui(self, parent):
+    #     # Create window and layout
+    #     QDialog.__init__(self, parent)
+    #     if parent is None:
+    #         app = QApplication(sys.argv)
+    #     self.win = QWidget()
+    #
+    #     # self.setLayout(QVBoxLayout())
+    #     self.vbox = QVBoxLayout(self.win)
+    #
+    #     print(self.cam.camset.cam_dict['gain'])
+    #
+    #     roi_chooser = ROISelector(self.win, self.cam)
+    #     rate_chooser = RateSelector(self.win, self.cam)
+    #     level_chooser = LevelSelector(self.win, self.cam.camset)
+    #     lut_chooser = LUTSelector(self.win, self.cam.camset)
+    #     config_chooser = CONFIG(self.win, self.cam.camset)
+    #     mcf_label = QLabel(self.mcf_filename)
+    #
+    #     self.vbox.addWidget(roi_chooser)
+    #     self.vbox.addWidget(rate_chooser)
+    #     self.vbox.addWidget(level_chooser)
+    #     self.vbox.addWidget(lut_chooser)
+    #     self.vbox.addWidget(config_chooser)
+    #     self.vbox.addWidget(mcf_label)
+    #
+    #     # Finalise window
+    #     self.win.setWindowTitle('Camera Settings Gui')
+    #     self.win.setGeometry(self.gui_pos[0],self.gui_pos[1],self.gui_pos[2], self.gui_pos[3])
+    #     self.win.setLayout(self.vbox)
+    #     self.win.show()
+    #     if parent is None:
+    #         sys.exit(app.exec_())
+
     def init_ui(self, parent):
         # Create window and layout
-        QWidget.__init__(self, parent)
+        QDialog.__init__(self, parent)
         if parent is None:
             app = QApplication(sys.argv)
-        self.win = QWidget()
+        # self.win = QWidget()
 
-        self.setLayout(QVBoxLayout())
-        self.vbox = QVBoxLayout(self.win)
+        # self.setLayout(QVBoxLayout())
+        self.vbox = QVBoxLayout(self)
 
         print(self.cam.camset.cam_dict['gain'])
 
-        roi_chooser = ROISelector(self.win, self.cam.camset)
-        rate_chooser = RateSelector(self.win, self.cam.camset)
-        level_chooser = LevelSelector(self.win, self.cam.camset)
-        lut_chooser = LUTSelector(self.win, self.cam.camset)
-        config_chooser = CONFIG(self.win, self.cam.camset)
+        roi_chooser = ROISelector(self, self.cam)
+        rate_chooser = RateSelector(self, self.cam)
+        level_chooser = LevelSelector(self, self.cam.camset)
+        lut_chooser = LUTSelector(self, self.cam.camset)
+        config_chooser = CONFIG(self, self.cam.camset)
         mcf_label = QLabel(self.mcf_filename)
 
         self.vbox.addWidget(roi_chooser)
@@ -47,10 +82,10 @@ class CameraSettingsGUI(QWidget):
         self.vbox.addWidget(mcf_label)
 
         # Finalise window
-        self.win.setWindowTitle('Camera Settings Gui')
-        self.win.setGeometry(self.gui_pos[0],self.gui_pos[1],self.gui_pos[2], self.gui_pos[3])
-        self.win.setLayout(self.vbox)
-        self.win.show()
+        self.setWindowTitle('Camera Settings Gui')
+        self.setGeometry(self.gui_pos[0],self.gui_pos[1],self.gui_pos[2], self.gui_pos[3])
+        self.setLayout(self.vbox)
+        self.show()
         if parent is None:
             sys.exit(app.exec_())
 
@@ -125,13 +160,14 @@ class LevelSelector(QWidget):
 class ROISelector(QWidget):
     def __init__(self, parent, cam):
         QWidget.__init__(self, parent)
-        self.camset = cam
+        self.cam = cam
+        self.camset = cam.camset
         self.setLayout(QHBoxLayout())
         self.width_box = LblEdit(parent, "Width", self.camset.cam_dict['frameformat'][2][2], self.width_callback)
         self.height_box = LblEdit(parent, "Height", self.camset.cam_dict['frameformat'][2][3], self.height_callback)
         self.xoffset_box = LblEdit(parent, "Xoffset", self.camset.cam_dict['frameformat'][2][0], self.xoffset_callback)
         self.yoffset_box = LblEdit(parent, "Yoffset", self.camset.cam_dict['frameformat'][2][1], self.yoffset_callback)
-        self.roi_button = QPushButton("Select ROI")
+        self.roi_button = QPushButton("Select ROI", default = False, autoDefault = False)
         self.roi_button.setCheckable(True)
         self.roi_button.clicked[bool].connect(self.roi_callback)
 
@@ -143,36 +179,108 @@ class ROISelector(QWidget):
 
     def width_callback(self,wid):
         self.frameform_input(wid,2)
-        pass
 
     def height_callback(self,hei):
         self.frameform_input(hei, 3)
-        pass
 
     def yoffset_callback(self,yoff):
         self.frameform_input(yoff,1)
-        pass
 
     def xoffset_callback(self,xoff):
         self.frameform_input(xoff, 0)
-        pass
 
     def roi_callback(self):
-        pass
+        print('ROI Button Called')
+        roi_Graph = ROIGraphDialog(self,self.cam)
 
     def frameform_input(self,val,ind):
         frameform = self.camset.cam_dict['frameformat'][2].copy()
         frameform[ind] = val
         if self.camset.write_single_cam_command('frameformat', frameform):
-            self.camset.write_single_fg_command_frame(self.camset.cam_dict['frameformat'][1][ind],val)
-        self.width_box.edit.setText(str(self.camset.cam_dict['frameformat'][2][2]))
-        self.height_box.edit.setText(str(self.camset.cam_dict['frameformat'][2][3]))
-        self.xoffset_box.edit.setText(str(self.camset.cam_dict['frameformat'][2][0]))
-        self.yoffset_box.edit.setText(str(self.camset.cam_dict['frameformat'][2][1]))
+            self.cam.resource_cleanup()
+            self.cam.reset_display()
+            self.camset.write_single_fg_command('frameformat',val,ind)
+            self.cam.initialise()
+            self.cam.grab()
+        else:
+            self.width_box.edit.setText(str(self.camset.cam_dict['frameformat'][2][2]))
+            self.height_box.edit.setText(str(self.camset.cam_dict['frameformat'][2][3]))
+            self.xoffset_box.edit.setText(str(self.camset.cam_dict['frameformat'][2][0]))
+            self.yoffset_box.edit.setText(str(self.camset.cam_dict['frameformat'][2][1]))
+
+class ROIGraph(MatplotlibFigure):
+    def __init__(self, parent,cam):
+        MatplotlibFigure.__init__(self, parent)
+        self.cam = cam
+        self.setup_axes()
+        self.initial_plot()
+
+    def setup_axes(self):
+        self.ax = self.fig.add_subplot(111)
+
+    def initial_plot(self):
+        max = [0 ,0 , self.cam.camset.cam_dict['frameformat'][3][2][1],self.cam.camset.cam_dict['frameformat'][3][3][1]]
+        # self.cam.camset.write_single_cam_command('frameformat', max)
+        # self.cam.resource_cleanup()
+        # self.cam.reset_display()
+        # for i in range(4):
+        #     self.cam.camset.write_single_fg_command('frameformat', max[i], i)
+        # self.cam.initialise()
+        # self.cam.grab()
+        ROIGraphDialog.roi_full_input(self,max)
+        time.sleep(0.1)
+        nImg = self.cam.snap_max_array()
+        self.ax.imshow(nImg,cmap='gray')
+        self.RoiFig = ROIfigure(self.ax)
+
+
+
+class ROIGraphDialog(QDialog):
+    def __init__(self, parent,cam):
+        self.cam = cam
+        QDialog.__init__(self, parent)
+        self.vbox = QVBoxLayout(self)
+        self.mpl = ROIGraph(self,self.cam)
+        self.roi_region_button = QPushButton("Select ROI Region", default = False, autoDefault = False)
+        self.roi_region_button.setCheckable(True)
+        self.roi_region_button.clicked[bool].connect(self.roi_region_callback)
+        self.vbox.addWidget(self.mpl)
+        self.vbox.addWidget(self.roi_region_button)
+        self.setWindowTitle('Draw an ROI')
+        self.setLayout(self.vbox)
+        self.show()
+
+
+
+    def roi_region_callback(self):
+        frame = [self.mpl.RoiFig.xoff,self.mpl.RoiFig.yoff,self.mpl.RoiFig.width,self.mpl.RoiFig.height]
+        print(frame)
+        # if self.cam.camset.write_single_cam_command('frameformat', frame):
+        #     time.sleep(0.2)
+        #     self.cam.resource_cleanup()
+        #     self.cam.reset_display()
+        #     for i in range(4):
+        #         self.cam.camset.write_single_fg_command('frameformat',frame[i],i)
+        #     self.cam.initialise()
+        #     self.cam.grab()
+        self.roi_full_input(frame)
+        print('ROI region callback')
+
+    def roi_full_input(self,frame):
+        if self.cam.camset.write_single_cam_command('frameformat', frame):
+            self.cam.resource_cleanup()
+            self.cam.reset_display()
+            for i in range(4):
+                self.cam.camset.write_single_fg_command('frameformat',frame[i],i)
+                print(i)
+            self.cam.initialise()
+            self.cam.grab()
+
 
 class RateSelector(QWidget):
     def __init__(self, parent, cam):
-        self.camset=cam
+        self.camset = cam.camset
+        self.cam = cam
         self.fps = self.camset.cam_dict['framerate'][2]
         self.exp = self.camset.cam_dict['exptime'][2]
         self.buffer = self.camset.cam_dict['numpicsbuffer'][2]
@@ -196,7 +304,12 @@ class RateSelector(QWidget):
     def framerate_callback(self,framerate):
         self.camset.write_single_cam_command('framerate', framerate)
         self.framerate.edit.setText(str(self.camset.cam_dict['framerate'][2]))
-        pass
+        self.cam.resource_cleanup()
+        self.cam.reset_display()
+        self.camset.write_single_fg_command('framerate', framerate)
+        self.cam.initialise()
+        self.cam.grab()
+
 
     def exposure_callback(self,exposure):
 
