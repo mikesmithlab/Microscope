@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="518c975d-cdb9-4f49-8985-c867236d5614" name="Default Changelist" comment="New Displays Open Successfully, can change some roi parameters, ROI selector partially works">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ROIfigure.py" beforeDir="false" afterPath="$PROJECT_DIR$/ROIfigure.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cam_settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/cam_settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera_gui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camerahs.py" beforeDir="false" afterPath="$PROJECT_DIR$/camerahs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camerasettings_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/camerasettings_gui.py" afterDir="false" />
-    </list>
+    <list default="true" id="518c975d-cdb9-4f49-8985-c867236d5614" name="Default Changelist" comment="New Displays Open Successfully, can change some roi parameters, ROI selector partially works" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,13 +40,13 @@
     <property name="settings.editor.selected.configurable" value="PyScientificConfigurable" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/.." />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/../Generic" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/.." />
     </key>
   </component>
   <component name="RunDashboard">
