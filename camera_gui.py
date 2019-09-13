@@ -260,7 +260,6 @@ class CameraVidEditGui:
         print('cursor position (x, y) = ({}, {})'.format(int(x), int(y)))
 
     def on_click(self, event):
-        #print('test')
         self.cam.save(first=self.edit_first_frame, last=self.edit_last_frame)
 
 if __name__ == '__main__':

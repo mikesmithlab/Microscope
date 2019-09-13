@@ -29,17 +29,14 @@ class Camera:
         self.autosave=False
 
     def initialise(self):
-        print(1)
         totalBufferSize = self.camset.cam_dict['frameformat'][2][2] * self.camset.cam_dict['frameformat'][2][3] * self.camset.cam_dict['numpicsbuffer'][2]
         self.memHandle = SISO.Fg_AllocMemEx(self.fg, totalBufferSize, self.camset.cam_dict['numpicsbuffer'][2])
         self.display = SISO.CreateDisplay(8, self.camset.cam_dict['frameformat'][2][2],
                                           self.camset.cam_dict['frameformat'][2][3])
         SISO.SetBufferWidth(self.display, self.camset.cam_dict['frameformat'][2][2],
                             self.camset.cam_dict['frameformat'][2][3])
-        print(2)
 
     def grab(self, numpics=0):
-        print(3)
         if numpics == 0:
             self.numpics = SISO.GRAB_INFINITE
         else:
@@ -53,13 +50,11 @@ class Camera:
 
         self.display_timer = DisplayTimer(0.03, self.display_img)
         self.display_timer.start()
-        print(4)
         if self.numpics != SISO.GRAB_INFINITE:
             while self.display_timer.is_running:
                 time.sleep(0.1)
             #self.stop()
             if self.autosave:
-                print(5)
                 self.save_vid(1, self.numpics)
                 self.resource_cleanup()
 
@@ -134,20 +129,20 @@ class Camera:
                 self.filename_base = filename.split('.')[0]
 
     def resource_cleanup(self):
-        #SISO.Fg_FreeMemEx(self.fg, self.memHandle)
         SISO.CloseDisplay(self.display)
-        #SISO.Fg_FreeGrabber(self.fg)
         print('Resources released')
 
 
     def close_display(self):
         SISO.CloseDisplay(self.display)
-        #os.system('wmctrl -c "microDisplay"')
+        os.system('wmctrl -a "Display"')
+        os.system('wmctrl -c "Display"')
 
 
     def reset_display(self):
         self.stop()
         self.display_timer.stop()
+        self.close_display()
         time.sleep(0.1)
 
 
