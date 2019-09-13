@@ -85,7 +85,7 @@ class CameraSettings:
         self.cam_dict = load_dict_from_file(filename)
         self._load_cam_config()
         SISO.Fg_loadConfig(self.fg, filename[:-3]+'mcf')
-        #self._check_new_max_vals()
+
         print('new config loaded')
 
     def save_config(self, filename=None, parent=None):
@@ -104,7 +104,6 @@ class CameraSettings:
         copyfile(self.cam_config_dir + 'default_backup.mcf', self.fg_current_mcf)
         self._load_cam_config()
         SISO.Fg_loadConfig(self.fg, self.cam_config_dir + 'current.mcf')
-
 
     def load_lut(self, filename=None):
         if filename is None:
@@ -128,15 +127,7 @@ class CameraSettings:
                         fout.writelines(self.cam_dict[key][0] + '(' + str(self.cam_dict[key][2]) + ')\n')
             fout.writelines('##quit')
 
-    def _check_new_max_vals(self):
-        output = self.write_single_cam_command('maxframerate')
-        self.cam_dict['framerate'][3][1] = str(int(output[0][1:-1]))
-        output = self.write_single_cam_command('maxexptime')
-        self.cam_dict['exptime'][3][1] = str(int(output[0][1:-1]))
-
     def write_single_cam_command(self, command, value=None):
-        print(str(value)[1:-1].replace(" ",""))
-
         with open(self.cam_cmds, "w") as fout:
             fout.writelines('#N\n')
             if value is None:
@@ -148,7 +139,6 @@ class CameraSettings:
                     fout.writelines(self.cam_dict[command][0] + '(' + str(value) + ')\n')
             fout.writelines('##quit')
         output = self._upload_cam_commands()
-        print(output)
         if output is not False and value is not None:
             self.cam_dict[command][2] = value
             print('Value uploaded')
@@ -171,16 +161,13 @@ class CameraSettings:
         param = globals()[parameter]
         SISO.Fg_setParameterWithInt(self.fg, param, value, 0)
 
-
     def _upload_cam_commands(self):
         p = subprocess.Popen([self.cam_shell_script], stdout=subprocess.PIPE)
         output = p.communicate()[0].split(b'\r\n')[1:-1]
-        print(output)
         if b'>\x15' in output:
             return False
         else:
             return output
-
 
 
 class CamSettingError(Exception):
