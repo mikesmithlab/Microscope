@@ -83,6 +83,14 @@ class Camera:
                                  self.camset.cam_dict['frameformat'][3][1][1])
         return nImg
 
+    def get_pixmap_image(self, frame):
+        img_ptr = SISO.Fg_getImagePtrEx(self.fg, int(frame), 0, self.memHandle)
+        nImg = SISO.getArrayFrom(img_ptr, self.camset.cam_dict['frameformat'][2][3],
+                                 self.camset.cam_dict['frameformat'][2][2])
+        pixmap = QPixmap.fromImage(array2qimage(nImg))
+        return pixmap
+
+
 
     def display_img(self):
         cur_pic_nr = SISO.Fg_getLastPicNumberEx(self.fg, 0, self.memHandle)
@@ -105,12 +113,16 @@ class Camera:
         now = time.gmtime()
         return time.strftime("%Y%m%d_%H%M%S", now)
 
-    def save_vid(self, startframe, stopframe, ext='.mp4'):
+    def save_vid(self, startframe, stopframe, ext='.mp4', filename=None):
         if startframe == 0:
             print('Frame numbers start from 1 setting startframe to 1')
             startframe = 1
-        date_time = self.datetimestr()
-        writevid = WriteVideo(filename=self.filename_base+str(date_time)+ext, frame_size=(
+        if filename is None:
+            date_time = self.datetimestr()
+            filename_op = self.filename_base+str(date_time)+ext
+        else:
+            filename_op=filename + ext
+        writevid = WriteVideo(filename=filename_op, frame_size=(
                                 self.camset.cam_dict['frameformat'][2][2], self.camset.cam_dict['frameformat'][2][3]))
         for frame in range(startframe, stopframe, 1):
             img_ptr = SISO.Fg_getImagePtrEx(self.fg, int(frame), 0, self.memHandle)
@@ -118,9 +130,6 @@ class Camera:
                                  self.camset.cam_dict['frameformat'][2][2])
             writevid.add_frame(nImg)
         writevid.close()
-
-    def open_editor(self):
-        pass
 
     def set_autosave(self, autosave=False, filename=None):
         self.autosave = autosave

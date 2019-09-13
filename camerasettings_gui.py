@@ -146,9 +146,7 @@ class ROISelector(QWidget):
 
     def width_callback(self,wid):
         remainder = wid%16
-        print(remainder)
         wid = wid - remainder
-        print(wid)
         self.frameform_input(wid,2)
 
     def height_callback(self,hei):

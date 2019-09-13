@@ -7,6 +7,7 @@ import sys
 from Generic.pyqt5_widgets import QtImageViewer
 from Generic.images import hstack
 from Generic.filedialogs import save_filename
+from Generic.video.videoviewer import VideoViewer
 import SiSoPyInterface as SISO
 
 from PyQt5.QtGui import QCloseEvent
@@ -105,7 +106,7 @@ class SaveAs(QWidget):
         self.cam.filename_base = self.saveas_filename
 
     def save_callback(self):
-        pass
+        VideoViewer(self.cam, filename=self.filename_base)
 
 
 class RecordControls(QWidget):
