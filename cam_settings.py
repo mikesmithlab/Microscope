@@ -69,15 +69,18 @@ class CameraSettings:
 
     '''
 
-    def __init__(self, fg, cam_config_dir='/opt/Microscope/ConfigFiles/'):
+    def __init__(self, fg, cam_config_dir='/opt/Microscope/ConfigFiles/', ccf_file=None):
         self.fg = fg
         self.cam_config_dir = cam_config_dir
         self.cam_cmds = cam_config_dir + 'cam_cmds'
-        self.cam_current_ccf = cam_config_dir + 'current.ccf'
+        if ccf_file is None:
+            self.cam_current_ccf = cam_config_dir + 'current.ccf'
+        else:
+            self.cam_current_ccf = ccf_file
         self.fg_current_mcf = cam_config_dir + 'current.mcf'
         self.cam_shell_script = cam_config_dir + 'update_cam'
         self.lut_script = cam_config_dir + 'upload_lut'
-        self.load_config()
+        self.load_config(filename=self.cam_current_ccf)
 
     def load_config(self, filename=None, parent=None):
         if filename is None:

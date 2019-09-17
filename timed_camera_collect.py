@@ -3,10 +3,11 @@ from microscope.camerahs import Camera
 
 
 def collect_movie(filename=None, numpics=None):
-    cam = Camera(filename='/home/ppzmis/Videos/test.mp4')
+    cam = Camera(filename=filename)
     cam.initialise()
     cam.set_autosave(True)
-    cam.grab(numpics=100)
+    cam.grab(numpics=numpics)
+    cam.resource_cleanup()
     del cam
 
 
@@ -15,7 +16,7 @@ def collect_movie(filename=None, numpics=None):
 
 
 class CameraTimer(object):
-    def __init__(self, interval, numpics, nummovies, filename, startfunction):
+    def __init__(self, interval=60, numpics=50, nummovies=2, filename=None, startfunction=None):
         self._timer     = None
         self.interval   = interval
         self.numpics = numpics
@@ -50,4 +51,4 @@ class CameraTimer(object):
 
 if __name__ == '__main__':
     #CameraTimer(Interval in sec, Numpics per collection, NumMovies, Filename base, function to handle collection)
-    timed_collect = CameraTimer(60, 50, 2, '/home/ppzmis/Videos/test.mp4', collect_movie)
+    timed_collect = CameraTimer(interval=60, numpics=50, nummovies=2, filename='/home/ppzmis/Videos/test.mp4', startfunction=collect_movie)

@@ -8,7 +8,7 @@ import os
 import cv2
 
 import SiSoPyInterface as SISO
-
+import numpy as np
 from Generic.filedialogs import save_filename
 from Generic.video import WriteVideo
 from Generic.pyqt5_widgets import QtImageViewer
@@ -17,15 +17,18 @@ from microscope.cam_settings import CameraSettings
 from microscope.camerasettings_gui import CameraSettingsGUI
 import time
 from threading import Timer
+from qimage2ndarray import array2qimage
+import matplotlib.pyplot as plt
 
 class Camera:
-    def __init__(self, cam_config_dir='/opt/Microscope/ConfigFiles/', filename=None):
+    def __init__(self, cam_config_dir='/opt/Microscope/ConfigFiles/', filename=None, ccf_file=None):
         self.cam_config_dir = cam_config_dir
         self.fg = SISO.Fg_InitConfig(cam_config_dir + 'current.mcf', 0)
-        self.camset = CameraSettings(self.fg, cam_config_dir)
+        self.camset = CameraSettings(self.fg, cam_config_dir, ccf_file=ccf_file)
         if filename is None:
             filename = save_filename(caption='Select filename base', directory='/home/ppzmis/Videos/')
         self.filename_base = filename.split('.')[0]
+        print(self.filename_base)
         self.autosave=False
 
     def initialise(self):
@@ -55,7 +58,8 @@ class Camera:
                 time.sleep(0.1)
             #self.stop()
             if self.autosave:
-                self.save_vid(1, self.numpics)
+                print(self.numpics)
+                self.save_vid(startframe=1, stopframe=self.numpics)
                 self.resource_cleanup()
 
     def trigger(self):
@@ -72,8 +76,8 @@ class Camera:
         date_time = self.datetimestr()
         cur_pic_nr = SISO.Fg_getLastPicNumberEx(self.fg, 0, self.memHandle)
         img_ptr = SISO.Fg_getImagePtrEx(self.fg, cur_pic_nr, 0, self.memHandle)
-        nImg = SISO.getArrayFrom(img_ptr, self.camset.cam_dict['frameformat'][2][3],
-                                 self.camset.cam_dict['frameformat'][2][2])
+        nImg = SISO.getArrayFrom(img_ptr, self.camset.cam_dict['frameformat'][2][2],
+                                 self.camset.cam_dict['frameformat'][2][3])
         cv2.imwrite(self.filename_base+date_time+ext, nImg)
 
     def snap_max_array(self):
@@ -85,8 +89,8 @@ class Camera:
 
     def get_pixmap_image(self, frame):
         img_ptr = SISO.Fg_getImagePtrEx(self.fg, int(frame), 0, self.memHandle)
-        nImg = SISO.getArrayFrom(img_ptr, self.camset.cam_dict['frameformat'][2][3],
-                                 self.camset.cam_dict['frameformat'][2][2])
+        nImg = SISO.getArrayFrom(img_ptr, self.camset.cam_dict['frameformat'][2][2],
+                                 self.camset.cam_dict['frameformat'][2][3])
         pixmap = QPixmap.fromImage(array2qimage(nImg))
         return pixmap
 
@@ -97,7 +101,7 @@ class Camera:
         if cur_pic_nr == self.numpics:
             self.display_timer.stop()
             if self.autosave:
-                self.save_vid(self.filename_base, 1, 250)
+                self.save_vid(self.filename_base, 1, self.numpics)
                 self.resource_cleanup()
         else:
             win_name_img = "Source Image (SiSo Runtime)"
@@ -106,14 +110,13 @@ class Camera:
             SISO.DrawBuffer(self.display, img_ptr, cur_pic_nr, win_name_img)
 
     def stop(self):
-        #self.max_img_num = SISO.Fg_getLastPicNumberEx(self.fg, self.last_pic_nr, 0, 5, self.memHandle)
         SISO.Fg_stopAcquire(self.fg, 0)
 
     def datetimestr(self):
         now = time.gmtime()
         return time.strftime("%Y%m%d_%H%M%S", now)
 
-    def save_vid(self, startframe, stopframe, ext='.mp4', filename=None):
+    def save_vid(self, startframe=1, stopframe=100, ext='.mp4', filename=None):
         if startframe == 0:
             print('Frame numbers start from 1 setting startframe to 1')
             startframe = 1
@@ -123,13 +126,20 @@ class Camera:
         else:
             filename_op=filename + ext
         writevid = WriteVideo(filename=filename_op, frame_size=(
-                                self.camset.cam_dict['frameformat'][2][2], self.camset.cam_dict['frameformat'][2][3]))
+                                self.camset.cam_dict['frameformat'][2][3], self.camset.cam_dict['frameformat'][2][2]))
+
         for frame in range(startframe, stopframe, 1):
             img_ptr = SISO.Fg_getImagePtrEx(self.fg, int(frame), 0, self.memHandle)
-            nImg = SISO.getArrayFrom(img_ptr, self.camset.cam_dict['frameformat'][2][3],
-                                 self.camset.cam_dict['frameformat'][2][2])
+            nImg = SISO.getArrayFrom(img_ptr, self.camset.cam_dict['frameformat'][2][2],
+                                 self.camset.cam_dict['frameformat'][2][3])
+            if frame == startframe + 1:
+                plt.figure()
+                plt.imshow(nImg)
+                plt.show()
+
             writevid.add_frame(nImg)
         writevid.close()
+        print('Finished writing video')
 
     def set_autosave(self, autosave=False, filename=None):
         self.autosave = autosave
@@ -153,10 +163,6 @@ class Camera:
         self.display_timer.stop()
         self.close_display()
         time.sleep(0.1)
-
-
-
-
 
 
 class DisplayTimer(object):
@@ -190,6 +196,6 @@ class DisplayTimer(object):
 if __name__ == '__main__':
     cam=Camera(filename='/home/ppzmis/Videos/test.mp4')
     cam.initialise()
-    #cam.set_autosave(True)
+    cam.set_autosave(True)
 
-    #cam.grab(numpics=100)
+    cam.grab(numpics=100)
