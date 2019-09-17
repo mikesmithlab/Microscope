@@ -91,6 +91,8 @@ class SaveAs(QWidget):
         self.setLayout(QVBoxLayout())
         self.saveas_button=QPushButton("Save as")
         self.save_button = QPushButton("Save")
+        #self.save_button.setCheckable(False)
+        self.cam.save_button = self.save_button
         self.saveas_button.clicked.connect(self.saveas_callback)
         self.save_button.clicked.connect(self.save_callback)
         self.saveas_lbl=QLabel(self.saveas_filename)
@@ -104,6 +106,7 @@ class SaveAs(QWidget):
                                      directory="", parent=self.parent)
         self.saveas_filename = full_filename.split('.')[0]
         self.cam.filename_base = self.saveas_filename
+        self.saveas_lbl.setText(self.saveas_filename)
 
     def save_callback(self):
         vid=VideoCutter(self.parent, self.cam, filename=self.cam.filename_base)
@@ -134,11 +137,13 @@ class RecordControls(QWidget):
     def grab_callback(self):
         self.cam.grab()
         self.grab.setChecked(True)
+        self.cam.save_button.setChecked(True)
         self.trigger.setChecked(False)
 
     def trigger_callback(self):
         self.cam.trigger()
         self.trigger.setChecked(True)
+        self.cam.save_button.setChecked(False)
         self.grab.setChecked(False)
 
 

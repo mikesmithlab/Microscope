@@ -73,12 +73,15 @@ class Camera:
     def snap(self, filename=None, ext='.png'):
         if filename is not None:
             self.filename_base =filename.split('.')[0]
+
+        img_filename = self.filename_base.split('Videos/')[0] + 'Pictures/' + self.filename_base.split('Videos/')[1]
+        print(img_filename)
         date_time = self.datetimestr()
         cur_pic_nr = SISO.Fg_getLastPicNumberEx(self.fg, 0, self.memHandle)
         img_ptr = SISO.Fg_getImagePtrEx(self.fg, cur_pic_nr, 0, self.memHandle)
         nImg = SISO.getArrayFrom(img_ptr, self.camset.cam_dict['frameformat'][2][2],
                                  self.camset.cam_dict['frameformat'][2][3])
-        cv2.imwrite(self.filename_base+date_time+ext, nImg)
+        cv2.imwrite(img_filename+date_time+ext, nImg)
 
     def snap_max_array(self):
         cur_pic_nr = SISO.Fg_getLastPicNumberEx(self.fg, 0, self.memHandle)
@@ -132,10 +135,6 @@ class Camera:
             img_ptr = SISO.Fg_getImagePtrEx(self.fg, int(frame), 0, self.memHandle)
             nImg = SISO.getArrayFrom(img_ptr, self.camset.cam_dict['frameformat'][2][2],
                                  self.camset.cam_dict['frameformat'][2][3])
-            if frame == startframe + 1:
-                plt.figure()
-                plt.imshow(nImg)
-                plt.show()
 
             writevid.add_frame(nImg)
         writevid.close()

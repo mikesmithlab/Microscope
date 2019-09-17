@@ -7,6 +7,8 @@ class VideoCutter(VideoViewer):
         self.cam = cam
         self.framenum = 1
         VideoViewer.__init__(self, parent, filename=filename)
+        self.selector.start_callback(1)
+        self.selector.stop_callback(self.cam.camset.cam_dict['numpicsbuffer'][2])
 
     def load_vid(self):
         return 1, self.cam.camset.cam_dict['numpicsbuffer'][2]
