@@ -8,6 +8,7 @@ def collect_movie(filename=None, numpics=None):
     cam.set_autosave(True)
     cam.grab(numpics=numpics)
     cam.resource_cleanup()
+    cam.close_display()
     del cam
 
 
